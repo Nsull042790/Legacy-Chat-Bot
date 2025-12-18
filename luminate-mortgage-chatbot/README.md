@@ -2,12 +2,22 @@
 
 A React-based mortgage chatbot widget for Luminate Bank, designed for GitHub Pages deployment and embedding in Duda websites.
 
-**Version: 1.0.3**
+**Version: 1.0.4**
+
+## Changelog
+
+| Version | Changes |
+|---------|---------|
+| v1.0.4 | Production release - removed debug elements, expanded knowledge base (40+ topics), added lead capture flow, fixed message rendering |
+| v1.0.3 | Debug version with content diagnostics |
+| v1.0.2 | Debug version (message in state, bubble empty) |
+| v1.0.1 | Attempted fix with unique IDs |
+| v1.0.0 | Initial release |
 
 ## Features
 
 - Interactive chat interface with typing indicators
-- Mortgage FAQ knowledge base (down payment, FHA, VA, PMI, self-employed, etc.)
+- Mortgage FAQ knowledge base (40+ topics including FHA, VA, PMI, self-employed, refinance, etc.)
 - Quick reply buttons for common questions
 - Lead capture flow (name, phone, email)
 - Responsive design with Luminate brand colors
@@ -15,7 +25,7 @@ A React-based mortgage chatbot widget for Luminate Bank, designed for GitHub Pag
 
 ## Tech Stack
 
-- **React 18** - UI framework
+- **React 18** - UI framework with useReducer for state management
 - **Vite** - Fast build tool
 - **Tailwind CSS** - Utility-first styling
 - **Lucide React** - Icon library
@@ -66,7 +76,7 @@ A React-based mortgage chatbot widget for Luminate Bank, designed for GitHub Pag
 luminate-mortgage-chatbot/
 ├── src/
 │   ├── components/
-│   │   └── MortgageChatbot.jsx  # Main chatbot component
+│   │   └── MortgageChatbot.jsx  # Main chatbot component (v1.0.4)
 │   ├── App.jsx                   # Root app component
 │   ├── main.jsx                  # Entry point
 │   └── index.css                 # Tailwind styles
@@ -130,7 +140,7 @@ To embed the chatbot in a Duda website, add this iframe code:
 <iframe
   src="https://YOUR_USERNAME.github.io/luminate-mortgage-chatbot/"
   width="400"
-  height="620"
+  height="720"
   frameborder="0"
   style="border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
 ></iframe>
@@ -142,38 +152,52 @@ Or as a floating widget (add to Duda's custom HTML):
 <div style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
   <iframe
     src="https://YOUR_USERNAME.github.io/luminate-mortgage-chatbot/"
-    width="380"
-    height="600"
+    width="400"
+    height="720"
     frameborder="0"
     style="border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);"
   ></iframe>
 </div>
 ```
 
+## Knowledge Base Topics
+
+The chatbot can answer questions about:
+
+- **Loan Types**: FHA, VA, Conventional, Jumbo, USDA, ARM
+- **Down Payment**: Requirements by loan type, gift funds
+- **PMI**: What it is, how to avoid it
+- **Self-Employed**: Documentation, bank statement loans
+- **Pre-Approval**: Process, required documents, timeline
+- **Credit Scores**: Requirements by loan type
+- **Refinancing**: Cash-out, rate reduction
+- **Closing Costs**: What to expect
+- **Investment Properties**: Requirements, rates
+- **And more...**
+
 ## Customization
 
 ### Brand Colors
 
-Update colors in `tailwind.config.js`:
-
-```js
-colors: {
-  'luminate-navy': '#0D1834',  // Header & user messages
-  'luminate-blue': '#96DAF8',  // Accents & highlights
-}
-```
+The component uses inline Tailwind colors:
+- Navy: `#0D1834` - Header & user messages
+- Light Blue: `#96DAF8` - Accents & highlights
 
 ### Knowledge Base
 
-Edit the `knowledgeBase` object in `MortgageChatbot.jsx` to add or modify FAQ responses.
+Edit the `KNOWLEDGE_BASE` object in `MortgageChatbot.jsx` to add or modify FAQ responses.
+
+### Lead Capture
+
+Leads are logged to console. In production, update the `handleLeadCapture` function to send to your CRM.
 
 ### NMLS Number
 
 Update the footer in `MortgageChatbot.jsx`:
 
 ```jsx
-<p className="text-center text-xs text-gray-500">
-  Luminate Home Loans Inc. | NMLS #1281698
+<p className="text-xs text-gray-500 text-center">
+  Luminate Home Loans Inc. · NMLS #1281698 · Equal Housing Lender
 </p>
 ```
 
