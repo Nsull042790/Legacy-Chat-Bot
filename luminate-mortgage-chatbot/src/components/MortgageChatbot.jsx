@@ -1,8 +1,11 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.5
+ * Version: 1.0.6
  *
  * CHANGELOG:
+ * v1.0.6 - Bug fixes
+ *        - Fixed pattern matching (self-employed now works)
+ *        - Restored version display in header
  * v1.0.5 - Company-specific update
  *        - Added Legacy Mortgage Division branding
  *        - Added company-specific loan products
@@ -19,7 +22,7 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.5';
+const VERSION = '1.0.6';
 
 // Message reducer for state management
 function messageReducer(state, action) {
@@ -48,7 +51,7 @@ function messageReducer(state, action) {
 const KNOWLEDGE_BASE = {
   // ==================== COMPANY INFO ====================
   about: {
-    patterns: ['about', 'who are you', 'legacy mortgage', 'luminate', 'company', 'tell me about'],
+    patterns: ['about you', 'about legacy', 'about luminate', 'who are you', 'your company', 'tell me about you', 'tell me about legacy'],
     response: "Legacy Mortgage Division is part of Luminate Bank — a Top 25 Retail Mortgage Lender nationwide! 🏆\n\n✓ 700+ mortgage professionals\n✓ 25+ years of experience\n✓ FDIC-insured institution\n✓ Licensed in all 50 states\n✓ Specializing in NJ, NY, FL & PA\n\nWe combine big-bank security with personalized service!",
     quickReplies: ['Loan options', 'Service areas', 'Get pre-approved']
   },
@@ -437,7 +440,7 @@ export default function MortgageChatbot() {
             </div>
             <div>
               <h3 className="text-white font-semibold">Legacy Mortgage</h3>
-              <p className="text-xs text-[#96DAF8]">A Luminate Bank Division</p>
+              <p className="text-xs text-[#96DAF8]">A Luminate Bank Division · v{VERSION}</p>
             </div>
           </div>
           <button
