@@ -1,8 +1,14 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.12
+ * Version: 1.0.13
  *
  * CHANGELOG:
+ * v1.0.13 - Branch locations & contact info
+ *         - Added branch_locations topic with office addresses
+ *         - NJ HQ: 219 Paterson Ave, Little Falls
+ *         - Corporate HQ: Minneapolis, MN
+ *         - Florida: Sarasota & Tampa Bay region
+ *         - Updated service_areas and contact responses
  * v1.0.12 - Conversation memory & proactive closing
  *         - Tracks last topic discussed for context
  *         - Follow-up detection ("tell me more", "these loans")
@@ -58,7 +64,7 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.12';
+const VERSION = '1.0.13';
 
 // ==================== CONVERSATION MEMORY ====================
 // Follow-up phrases that indicate user wants more info on previous topic
@@ -427,14 +433,20 @@ const KNOWLEDGE_BASE = {
 
   service_areas: {
     patterns: ['where do you', 'service area', 'what states', 'locations', 'new jersey', 'new york', 'florida', 'pennsylvania', 'nj', 'ny', 'fl', 'pa'],
-    response: "We're licensed in all 50 states! 🇺🇸\n\nOur specialty areas:\n• New Jersey (HQ in Little Falls)\n• New York\n• Florida\n• Pennsylvania\n\nNo matter where you're buying, we can help. Our team averages 10+ years of experience!",
-    quickReplies: ['Contact us', 'Get pre-approved', 'Loan options']
+    response: "We're licensed in all 50 states! 🇺🇸\n\nOur specialty areas:\n• New Jersey (HQ in Little Falls)\n• New York\n• Florida (Gulf Coast & Tampa Bay)\n• Pennsylvania\n\nWith 700+ mortgage professionals nationwide, we have local experts in your area!",
+    quickReplies: ['Branch locations', 'Contact us', 'Get pre-approved']
+  },
+
+  branch_locations: {
+    patterns: ['branch', 'branches', 'office location', 'offices', 'where are you located', 'nearest office', 'local office', 'visit'],
+    response: "📍 **Our Locations:**\n\n🏢 **New Jersey HQ (Little Falls)**\n219 Paterson Ave\nLittle Falls, NJ 07424\n\n🏢 **Corporate HQ (Minneapolis)**\n2523 S. Wayzata Blvd. #100\nMinneapolis, MN 55405\n\n🌴 **Florida**\nSarasota & Gulf Coast region\nTampa Bay area\n\n📞 We have loan production offices across the country! With 700+ professionals in every U.S. time zone, there's always someone local to help.\n\nWant to connect with a loan officer in your area?",
+    quickReplies: ['Talk to a specialist', 'Service areas', 'Get pre-approved']
   },
 
   contact: {
-    patterns: ['contact', 'phone', 'email', 'address', 'office', 'reach', 'call', 'little falls'],
-    response: "📍 Legacy Mortgage Division\n219 Paterson Ave\nLittle Falls, NJ 07424\n\n🌐 legacymortgagedivision.com\n\nReady to get started? I can connect you with a loan officer who specializes in your area!",
-    quickReplies: ['Talk to a specialist', 'Apply now', 'Get pre-approved']
+    patterns: ['contact', 'phone', 'email', 'address', 'reach', 'call', 'little falls'],
+    response: "📍 **Legacy Mortgage Division**\n219 Paterson Ave\nLittle Falls, NJ 07424\n\n🌐 legacymortgagedivision.com\n\n📞 We have loan officers across the country ready to help! Whether you're in NJ, NY, FL, PA, or anywhere else — we've got you covered.\n\nReady to get started? I can connect you with a specialist in your area!",
+    quickReplies: ['Talk to a specialist', 'Branch locations', 'Get pre-approved']
   },
 
   // ==================== LOAN PRODUCTS ====================
