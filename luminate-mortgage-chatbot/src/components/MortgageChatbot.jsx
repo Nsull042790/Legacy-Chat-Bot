@@ -1,8 +1,19 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.13
+ * Version: 1.0.15
  *
  * CHANGELOG:
+ * v1.0.15 - Complete branch location database
+ *         - Added all 12 branch locations with full addresses
+ *         - NJ: Little Falls (HQ), Pompton Plains, Ho-Ho-Kus, Shrewsbury, Edison, Toms River, Northfield
+ *         - PA: Newtown
+ *         - NY: Syosset, Smithtown, Hampton Bays
+ *         - FL: Tampa
+ * v1.0.14 - Expanded loan product knowledge base
+ *         - Enhanced FHA, VA, USDA, Jumbo, Non-QM entries
+ *         - Added FHA 203K Renovation & Interest-Only topics
+ *         - Updated pre_approval with 3 levels (Pre-Qual, Pre-Approval, Home Buyer's Edge)
+ *         - Enhanced Reverse Mortgage, ARM, Non-Warrantable Condo content
  * v1.0.13 - Branch locations & contact info
  *         - Added branch_locations topic with office addresses
  *         - NJ HQ: 219 Paterson Ave, Little Falls
@@ -64,7 +75,7 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.13';
+const VERSION = '1.0.15';
 
 // ==================== CONVERSATION MEMORY ====================
 // Follow-up phrases that indicate user wants more info on previous topic
@@ -438,9 +449,9 @@ const KNOWLEDGE_BASE = {
   },
 
   branch_locations: {
-    patterns: ['branch', 'branches', 'office location', 'offices', 'where are you located', 'nearest office', 'local office', 'visit'],
-    response: "📍 **Our Locations:**\n\n🏢 **New Jersey HQ (Little Falls)**\n219 Paterson Ave\nLittle Falls, NJ 07424\n\n🏢 **Corporate HQ (Minneapolis)**\n2523 S. Wayzata Blvd. #100\nMinneapolis, MN 55405\n\n🌴 **Florida**\nSarasota & Gulf Coast region\nTampa Bay area\n\n📞 We have loan production offices across the country! With 700+ professionals in every U.S. time zone, there's always someone local to help.\n\nWant to connect with a loan officer in your area?",
-    quickReplies: ['Talk to a specialist', 'Service areas', 'Get pre-approved']
+    patterns: ['branch', 'branches', 'office location', 'offices', 'where are you located', 'nearest office', 'local office', 'visit', 'little falls', 'pompton plains', 'ho-ho-kus', 'hohokus', 'shrewsbury', 'edison', 'toms river', 'northfield', 'newtown', 'syosset', 'smithtown', 'hampton bays', 'tampa'],
+    response: "📍 **Our Branch Locations:**\n\n**NEW JERSEY:**\n🏢 Little Falls (HQ): 219 Paterson Ave, 07424\n🏢 Pompton Plains: 142 Route 23 North, 07444\n🏢 Ho-Ho-Kus: 24 Sheridan Ave, 07423\n🏢 Shrewsbury: 39 Avenue at the Common, Ste 101, 07702\n🏢 Edison: 505 Thornall St, Ste 303, 08837\n🏢 Toms River: 1848 Hooper Ave, Unit B, 08753\n🏢 Northfield: 2312 New Road, Ste 105, 08225\n\n**PENNSYLVANIA:**\n🏢 Newtown: 223 N. Sycamore St, Unit 3, 18940\n\n**NEW YORK:**\n🏢 Syosset: 6851 Jericho Tpke, Ste 135, 11791\n🏢 Smithtown: 11 Redwood Lane, 11787\n🏢 Hampton Bays: 67 W. Montauk Hwy, 11946\n\n**FLORIDA:**\n🏢 Tampa: 1205 N. Franklin St, Ste 106, 33602\n\nAll offices are by appointment. Want to connect with a loan officer near you?",
+    quickReplies: ['Talk to a specialist', 'Get pre-approved', 'Contact us']
   },
 
   contact: {
