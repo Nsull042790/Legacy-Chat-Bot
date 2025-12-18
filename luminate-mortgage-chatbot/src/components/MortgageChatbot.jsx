@@ -457,27 +457,27 @@ const KNOWLEDGE_BASE = {
   },
 
   fha: {
-    patterns: ['fha', 'fha loan', 'what is fha', 'federal housing'],
-    response: "FHA loans are government-backed mortgages perfect for first-time buyers!\n\n✓ Down payment as low as 3.5%\n✓ Credit scores from 580 accepted\n✓ Flexible debt-to-income ratios\n✓ Gift funds allowed for down payment\n✓ Lower credit? We have options!\n\nFHA is great for buyers with moderate income or less-than-perfect credit.",
-    quickReplies: ['FHA vs Conventional', 'First-time buyer', 'Get pre-approved']
+    patterns: ['fha', 'fha loan', 'what is fha', 'federal housing', 'federal housing administration'],
+    response: "FHA loans are government-insured mortgages designed to make homeownership accessible! 🏛️\n\n**Key Benefits:**\n✓ Down payments as low as **3.5%**\n✓ Credit scores from **580** accepted\n✓ Flexible debt-to-income ratios\n✓ Gift funds allowed for down payment\n✓ Loan is **guaranteed by the government**\n\n**FHA Loan Options:**\n• Purchase loans (primary residence)\n• Refinance options\n• Energy-efficient mortgages\n• FHA 203K renovation loans\n• Reverse mortgages (HECM)\n\n💡 Created in 1934, FHA loans stimulate economic development and help more Americans achieve homeownership!\n\nReady to see if you qualify? It's easier than ever!",
+    quickReplies: ['Get pre-qualified', 'FHA 203K Renovation', 'First-time buyer']
   },
 
   va: {
-    patterns: ['va loan', 'va ', 'veteran', 'military', 'service member', 'surviving spouse'],
-    response: "Thank you for your service! 🎖️ VA loans offer incredible benefits:\n\n✓ NO down payment required\n✓ NO PMI ever!\n✓ Competitive interest rates\n✓ Limited closing costs\n✓ Flexible credit guidelines\n\nEligible: Active duty, veterans, National Guard, reserves, and surviving spouses.",
-    quickReplies: ['Check VA eligibility', 'Down payment options', 'Get pre-approved']
+    patterns: ['va loan', 'va ', 'veteran', 'military', 'service member', 'surviving spouse', 'certificate of eligibility', 'coe'],
+    response: "Thank you for your service! 🎖️ VA loans offer incredible benefits:\n\n**Key Benefits:**\n✓ **NO down payment** required\n✓ **NO PMI** — ever!\n✓ Competitive interest rates\n✓ No penalty for early payoff\n✓ VA assistance if payment issues arise\n\n**Who's Eligible:**\n• Active-duty military\n• Veterans\n• Reservists & National Guard\n• Some surviving spouses\n\n📋 **Certificate of Eligibility (COE):**\nYou'll need a COE to verify eligibility — we can help you get this online, by mail, or through us directly!\n\nLet one of our experienced VA financing professionals help you!",
+    quickReplies: ['Check VA eligibility', 'Get pre-qualified', 'Talk to VA specialist']
   },
 
   jumbo: {
-    patterns: ['jumbo', 'jumbo loan', 'high balance', 'over limit', 'large loan', 'expensive home'],
-    response: "Need financing for a high-value property? Our Jumbo loans are exceptional!\n\n✓ Finance up to 90% of property value\n✓ As little as 10% down\n✓ NO PMI required!\n✓ Competitive rates\n✓ Loan amounts above $766,550\n\nPerfect for luxury homes and high-cost areas.",
-    quickReplies: ['Check jumbo rates', 'Down payment options', 'Talk to a specialist']
+    patterns: ['jumbo', 'jumbo loan', 'high balance', 'over limit', 'large loan', 'expensive home', 'non-conforming', 'luxury home'],
+    response: "Need financing for a high-value property? Our Jumbo loans are exceptional! 💎\n\n**Key Benefits:**\n✓ Exceeds conforming loan limits\n✓ As little as **10% down**\n✓ **NO PMI** required!\n✓ Competitive rates\n✓ Rapidly builds credit!\n\n**Two Options:**\n• **Fixed-Rate Jumbo:** Consistent payments, easier budgeting\n• **Adjustable-Rate Jumbo:** Lower initial payments, great if relocating\n\n**Perfect For:**\n• Luxury & high-value homes\n• High-cost areas (NYC, NJ, FL)\n• Buyers anticipating income growth\n\nTalking to a licensed loan officer is the first step. We offer greater flexibility and competitive rates!",
+    quickReplies: ['Check jumbo rates', 'Fixed vs ARM', 'Talk to a specialist']
   },
 
   usda: {
-    patterns: ['usda', 'rural', 'rural development', 'rural area'],
-    response: "USDA loans offer 0% down for eligible rural and suburban areas!\n\n✓ No down payment required\n✓ Lower mortgage insurance than FHA\n✓ Competitive rates\n✓ Income limits apply\n\nMany areas just outside cities qualify — you might be surprised! Let's check your address.",
-    quickReplies: ['Check my eligibility', 'Down payment options', 'Talk to a specialist']
+    patterns: ['usda', 'rural', 'rural development', 'rural area', 'rural housing', 'guaranteed rural'],
+    response: "USDA Guaranteed Rural Housing Loans offer amazing benefits! 🌾\n\n**Key Benefits:**\n✓ **100% financing** — NO down payment!\n✓ Better terms than FHA or conventional\n✓ Great interest rates\n✓ 30-year fixed term\n\n**Eligibility Requirements:**\n• Property must be in USDA-defined rural area\n• Must be owner-occupied (primary residence)\n• Income up to 115% of area median\n• Meet credit and income requirements\n\n💡 Many suburban areas just outside cities qualify — you might be surprised!\n\nLet our experienced USDA financing professional help you navigate the process!",
+    quickReplies: ['Check USDA eligibility', 'Zero down options', 'Talk to a specialist']
   },
 
   conventional: {
@@ -488,8 +488,8 @@ const KNOWLEDGE_BASE = {
 
   // ==================== SPECIALTY PRODUCTS ====================
   non_qm: {
-    patterns: ['non-qm', 'non qm', 'nonqm', 'alternative', 'non-traditional', 'alternative income'],
-    response: "Non-QM loans are perfect for borrowers who don't fit traditional guidelines!\n\n✓ Self-employed borrowers\n✓ Bank statement income verification\n✓ Asset-based qualification\n✓ Recent credit events OK\n✓ Foreign nationals\n✓ Investment property investors\n\nWe're a Top Non-QM Lender — we specialize in finding solutions!",
+    patterns: ['non-qm', 'non qm', 'nonqm', 'alternative', 'non-traditional', 'alternative income', 'non qualified mortgage'],
+    response: "Non-QM loans are perfect for borrowers who don't fit traditional guidelines! 📋\n\n**Who Benefits from Non-QM:**\n• Self-employed borrowers\n• Real estate investors\n• Foreign nationals\n• Prime & near-prime borrowers\n• Those with significant assets\n• Recent credit events\n\n**Verification Options:**\n• Full documentation\n• 1-year tax return program\n• Bank statement program (6 or 12 months)\n• Asset depletion/qualification\n\n**Use For:**\n• Purchases\n• Rate-and-term refinances\n• Cash-out refinances\n• Owner-occupied, second homes, or investment\n\n🏆 We're a **Top Non-QM Lender** — not every lender offers this. We specialize in finding solutions!",
     quickReplies: ['Bank statement loans', 'Self-employed options', 'Talk to a specialist']
   },
 
@@ -518,21 +518,33 @@ const KNOWLEDGE_BASE = {
   },
 
   reverse_mortgage: {
-    patterns: ['reverse', 'reverse mortgage', 'hecm', 'senior', '62', 'retirement', 'equity access'],
-    response: "Reverse Mortgages (HECM) for homeowners 62+:\n\n✓ Access home equity tax-free\n✓ No monthly mortgage payments\n✓ Stay in your home\n✓ FHA-insured protection\n✓ Multiple disbursement options\n\nUse funds for retirement, healthcare, home improvements, or anything you need!",
-    quickReplies: ['How it works', 'Eligibility', 'Talk to a specialist']
+    patterns: ['reverse', 'reverse mortgage', 'hecm', 'senior', '62', 'retirement', 'equity access', 'over 62'],
+    response: "We're a **leading Reverse Mortgage lender**! 🏡\n\n**How It Works:**\n• NO monthly payments required\n• Receive payments from your equity instead!\n• Retain ownership and title\n• Loan repaid when home sells or you move\n\n**Why Seniors Love It:**\n• Cover living expenses\n• Pay medical bills\n• Home improvements\n• Travel & enjoy retirement!\n\n**Eligibility:**\n• Must be 62+ years old\n• Primary residence\n• Single-family, 2-4 unit, townhome, or approved condo\n\n💰 **Proceeds are NOT subject to income tax!**\n\nOur loan officers are trained on the latest trends. Call 1-800-908-0005!",
+    quickReplies: ['HECM eligibility', 'How much can I get?', 'Talk to a specialist']
   },
 
   arm: {
-    patterns: ['arm', 'adjustable', 'adjustable rate', '5/1', '7/1', '10/1', 'variable'],
-    response: "Adjustable Rate Mortgages start with lower rates:\n\n• 3/1 ARM: Fixed 3 years, then adjusts\n• 5/1 ARM: Fixed 5 years\n• 7/1 ARM: Fixed 7 years\n• 10/1 ARM: Fixed 10 years\n\nBest for: Short-term ownership, relocating soon, or expecting income increases. Rate caps protect you from major jumps!",
+    patterns: ['arm', 'adjustable', 'adjustable rate', '5/1', '7/1', '10/1', 'variable', '3/1', 'sofr'],
+    response: "Adjustable Rate Mortgages (ARMs) offer **lower initial rates**! 📊\n\n**How ARMs Work:**\n• Rate is fixed for 3-10 years initially\n• Then adjusts based on market index (SOFR)\n• Lower initial payments than fixed-rate!\n\n**Common Options:**\n• 3/1 ARM: Fixed 3 years, then adjusts yearly\n• 5/1 ARM: Fixed 5 years\n• 7/1 ARM: Fixed 7 years\n• 10/1 ARM: Fixed 10 years\n\n**Rate Caps Protect You:**\n• Periodic cap: Limits each adjustment\n• Lifetime cap: Limits total increase over loan life\n\n✅ **Best For:**\n• Planning to move/relocate\n• Expecting income to increase\n• Short-term homeownership\n\nLet us help you find the right ARM structure!",
     quickReplies: ['ARM vs Fixed', 'Current rates', 'Talk to a specialist']
   },
 
   non_warrantable_condo: {
-    patterns: ['condo', 'non-warrantable', 'warrantable', 'hoa', 'condo financing'],
-    response: "Non-Warrantable Condo Financing available!\n\nWe can help when others can't:\n✓ High investor concentration\n✓ Single-entity ownership issues\n✓ Pending litigation\n✓ Commercial space concerns\n✓ New construction\n\nDon't let condo restrictions stop your purchase!",
-    quickReplies: ['Talk to a specialist', 'Down payment options', 'Get pre-approved']
+    patterns: ['condo', 'non-warrantable', 'warrantable', 'hoa', 'condo financing', 'condominium'],
+    response: "Non-Warrantable Condo Financing — we help when others can't! 🏢\n\n**A condo may be non-warrantable if:**\n• Single entity owns 10%+ of units\n• Project not yet completed\n• Developer hasn't transferred HOA control\n• Short-term rentals allowed\n• Majority of units are rented\n• HOA involved in litigation\n• Commercial space exceeds 25%\n\n**Warrantable condo requirements:**\n✓ No entity owns >10% of units\n✓ 51%+ owner-occupied\n✓ <15% units behind on HOA dues\n✓ No HOA lawsuits\n\n💡 **Important:** Ask about warrantability BEFORE making an offer!\n\nWe specialize in finding solutions for non-warrantable condos!",
+    quickReplies: ['Talk to a specialist', 'Condo eligibility', 'Get pre-approved']
+  },
+
+  fha_203k: {
+    patterns: ['203k', '203(k)', 'renovation loan', 'rehab loan', 'fixer upper', 'fixer-upper', 'needs work', 'renovate', 'rehabilitation'],
+    response: "FHA 203K Renovation Loans — turn a fixer-upper into your dream home! 🔨\n\n**Benefits:**\n✓ Finance purchase + renovations in ONE loan\n✓ Down payment as low as **3.5%**\n✓ 30-year fixed rate\n✓ Flexible FHA underwriting\n✓ Potential value appreciation!\n\n**Two Types:**\n• **Standard 203K:** Structural repairs, additions, room expansions\n• **Streamlined 203K:** Non-structural (up to $35,000) — paint, appliances, flooring\n\n**What's Covered:**\n✓ Kitchen & bathroom remodels\n✓ Plumbing, HVAC, flooring\n✓ Additions & second stories\n✓ New siding, patios, decks\n✓ Even new well & septic!\n\n🏠 We have 30+ years experience with 203K loans. Let's make your vision a reality!",
+    quickReplies: ['203K eligibility', 'How much can I borrow?', 'Talk to a specialist']
+  },
+
+  interest_only: {
+    patterns: ['interest only', 'interest-only', 'io loan', 'interest only mortgage', 'lower payment'],
+    response: "Interest-Only Mortgages offer **flexibility** for the right borrower! 💵\n\n**How It Works:**\n• Pay only interest for first 5-10 years\n• Principal stays unchanged initially\n• Lower payments early in the loan\n• Then begin paying principal + interest\n\n**Great For:**\n• First-time homeowners adjusting to costs\n• Freelancers/commission workers with variable income\n• Ready to buy high-value now, income increasing later\n• Investors prioritizing cash flow\n• Diverting income to investments/college/retirement\n\n⚠️ **Consider:** Payments increase after interest-only period.\n\nWant to see if this strategy fits your financial goals?",
+    quickReplies: ['Compare loan options', 'Talk to a specialist', 'Get pre-approved']
   },
 
   // ==================== ASSISTANCE PROGRAMS ====================
@@ -543,16 +555,16 @@ const KNOWLEDGE_BASE = {
   },
 
   first_time: {
-    patterns: ['first time', 'first-time', 'first home', 'never bought', 'new buyer'],
-    response: "Congratulations on buying your first home! 🏠\n\nFirst-time buyer perks:\n• FHA loans with 3.5% down\n• Down payment assistance programs\n• State-specific grants (like NY SONYMA)\n• Gift funds allowed\n• Lower PMI rates\n\nYou may qualify even if you owned 3+ years ago!",
-    quickReplies: ['FHA loans', 'Down payment help', 'NY programs']
+    patterns: ['first time', 'first-time', 'first home', 'never bought', 'new buyer', 'buying first', 'first house'],
+    response: "Buying your first home is an exciting milestone! 🏠\n\n**Step 1:** Understand how much house you can afford\n**Step 2:** Explore loan programs for first-time buyers\n**Step 3:** Customize your loan to fit YOUR needs\n\n🎁 **First-Time Buyer Perks:**\n• FHA loans with just 3.5% down\n• Down payment assistance programs\n• State-specific grants (NY SONYMA, NJ Smart Start)\n• Gift funds allowed for down payment\n• Lower PMI rates\n\n💡 You may qualify even if you owned a home 3+ years ago!\n\nReady to take the first step? Get pre-qualified — it's FREE!",
+    quickReplies: ['Get pre-qualified', 'FHA loans', 'Down payment help']
   },
 
   // ==================== PROCESS & GENERAL ====================
   pre_approval: {
-    patterns: ['pre-approval', 'preapproval', 'pre approved', 'preapproved', 'get approved', 'qualify', 'how much can i'],
-    response: "Getting pre-approved is your smart first step!\n\nBenefits:\n✓ Know your exact budget\n✓ Sellers take you seriously\n✓ Faster closing process\n✓ Lock in your rate\n\nTypically 24-48 hours. We'll guide you through every document needed!",
-    quickReplies: ['Start pre-approval', 'Documents needed', 'Talk to a specialist']
+    patterns: ['pre-approval', 'preapproval', 'pre approved', 'preapproved', 'get approved', 'qualify', 'how much can i', 'pre-qualification', 'prequalification', 'pre qualified', 'prequalified', 'credit approval'],
+    response: "Getting pre-approved is your smart first step! We offer **3 levels** of approval:\n\n📋 **1. Pre-Qualification** (Fastest)\n• Quick estimate of buying power\n• Basic credit & income review\n• Great starting point!\n\n✅ **2. Pre-Approval** (Most Common)\n• Verified income & assets\n• Credit report pulled\n• Strong offer position\n\n🏆 **3. Credit Approval with Home Buyer's Edge**\n• Full underwriting completed BEFORE you shop\n• Strongest possible offer\n• Close faster than competition!\n\n💡 **All consultations are FREE** — no cost, no obligation.\n\nWhich level works best for your timeline?",
+    quickReplies: ['Get pre-qualified FREE', 'Home Buyer\'s Edge', 'Talk to a specialist']
   },
 
   rates: {
