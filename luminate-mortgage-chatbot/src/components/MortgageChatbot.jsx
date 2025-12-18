@@ -1,8 +1,11 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.15
+ * Version: 1.0.16
  *
  * CHANGELOG:
+ * v1.0.16 - Loan options overview
+ *         - Added loan_options topic for "Loan options" quick reply
+ *         - Shows all loan types: FHA, VA, USDA, Conventional, Jumbo, Non-QM, etc.
  * v1.0.15 - Complete branch location database
  *         - Added all 12 branch locations with full addresses
  *         - NJ: Little Falls (HQ), Pompton Plains, Ho-Ho-Kus, Shrewsbury, Edison, Toms River, Northfield
@@ -75,7 +78,7 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.15';
+const VERSION = '1.0.16';
 
 // ==================== CONVERSATION MEMORY ====================
 // Follow-up phrases that indicate user wants more info on previous topic
@@ -461,6 +464,12 @@ const KNOWLEDGE_BASE = {
   },
 
   // ==================== LOAN PRODUCTS ====================
+  loan_options: {
+    patterns: ['loan options', 'loan types', 'types of loans', 'what loans', 'loan programs', 'mortgage options', 'mortgage types', 'what kind of loans', 'which loan'],
+    response: "We offer a full range of mortgage solutions! 🏠\n\n**Government Loans:**\n• **FHA** — 3.5% down, flexible credit (580+)\n• **VA** — 0% down for veterans, NO PMI!\n• **USDA** — 0% down for rural areas\n\n**Conventional Loans:**\n• **Conforming** — 3-5% down, PMI drops at 20%\n• **Jumbo** — High-value homes, 10% down, NO PMI!\n\n**Specialty Programs:**\n• **Non-QM** — Self-employed, bank statements\n• **FHA 203K** — Renovation financing\n• **ARM** — Lower initial rates\n• **Reverse** — For homeowners 62+\n• **Bridge Loans** — Buy before you sell\n\nWhich type interests you most?",
+    quickReplies: ['FHA loans', 'VA loans', 'Self-employed options', 'First-time buyer']
+  },
+
   down_payment: {
     patterns: ['down payment', 'downpayment', 'how much down', 'money down', 'upfront'],
     response: "Down payment requirements vary by loan type:\n\n• Conventional: 3-5% minimum\n• FHA: 3.5% with 580+ credit\n• VA: 0% for eligible veterans\n• USDA: 0% for rural areas\n• Jumbo: As low as 10% with NO PMI!\n\nWe also have down payment assistance programs available!",
