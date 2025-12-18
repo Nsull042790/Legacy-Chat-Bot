@@ -1,8 +1,15 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.10
+ * Version: 1.0.11
  *
  * CHANGELOG:
+ * v1.0.11 - Auto-learning intent system
+ *         - Manual intent mappings for all blog topics
+ *         - Auto-learning: extracts keywords from user input
+ *         - Matches keywords against knowledge base patterns
+ *         - Partial word matching (e.g., "renovation" → "renovate")
+ *         - Question phrase detection for better context
+ *         - New topics auto-work without manual mapping!
  * v1.0.10 - Intent detection system
  *         - New action + topic matching (e.g., "cancel" + "pmi" → pmi_removal)
  *         - More flexible PMI removal patterns
@@ -45,7 +52,7 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.10';
+const VERSION = '1.0.11';
 
 // Common typo corrections for mortgage-related terms
 const TYPO_CORRECTIONS = {
@@ -143,37 +150,152 @@ function correctTypos(text) {
   return corrected;
 }
 
-// Intent detection - maps action words + topic to specific knowledge base entries
-const INTENT_MAPPINGS = {
-  // "cancel/remove/stop/get rid of" + "pmi" → pmi_removal
+// ==================== INTENT DETECTION SYSTEM ====================
+// Manual high-priority intent mappings (action + topic → knowledge base key)
+const MANUAL_INTENT_MAPPINGS = {
+  // PMI removal
   pmi_removal: {
     actions: ['cancel', 'remove', 'stop', 'get rid', 'eliminate', 'drop', 'end'],
     topics: ['pmi', 'private mortgage insurance', 'mortgage insurance']
   },
-  // "apply/start/begin" + "loan/mortgage" → apply
-  apply: {
-    actions: ['apply', 'start', 'begin', 'submit'],
-    topics: ['application', 'loan', 'mortgage', 'process']
-  },
-  // "refinance/refi/lower" + "rate/payment" → refinance
+  // Refinancing
   refinance: {
     actions: ['refinance', 'refi', 'lower', 'reduce'],
-    topics: ['rate', 'payment', 'mortgage', 'interest']
+    topics: ['rate', 'payment', 'interest']
+  },
+  // 203k renovation loans
+  fha_203k: {
+    actions: ['renovate', 'fix', 'repair', 'rehab', 'upgrade', 'improve'],
+    topics: ['home', 'house', 'property', 'loan', 'financing', 'fixer']
+  },
+  // Value Assurance / competing with cash
+  value_assurance: {
+    actions: ['compete', 'beat', 'win', 'against'],
+    topics: ['cash', 'offer', 'bidding', 'buyer']
+  },
+  // Assumable mortgages
+  assumable_mortgage: {
+    actions: ['assume', 'take over', 'inherit', 'transfer'],
+    topics: ['mortgage', 'loan', 'seller']
+  },
+  // State assistance programs
+  pa_assistance: {
+    actions: ['help', 'assistance', 'program', 'grant'],
+    topics: ['pennsylvania', 'pa', 'keystone', 'phfa']
+  },
+  nj_assistance: {
+    actions: ['help', 'assistance', 'program', 'grant'],
+    topics: ['new jersey', 'nj', 'njhmfa', 'jersey']
+  },
+  // Tax benefits
+  tax_benefits: {
+    actions: ['deduct', 'save', 'write off', 'claim'],
+    topics: ['tax', 'taxes', '1098', 'deduction']
+  },
+  // College home buying
+  college_home: {
+    actions: ['buy', 'purchase', 'invest'],
+    topics: ['college', 'student', 'university', 'dorm', 'kid', 'child']
   }
 };
 
-// Function to check for intent (action + topic combinations)
-function checkIntent(text) {
+// Common question phrases that indicate informational intent
+const QUESTION_PHRASES = [
+  'what is', 'what are', 'what\'s', 'tell me about', 'explain', 'how does',
+  'how do i', 'how can i', 'how to', 'ways to', 'can i', 'do you have',
+  'info on', 'information about', 'learn about', 'details on'
+];
+
+// Stop words to ignore when extracting keywords
+const STOP_WORDS = new Set([
+  'what', 'how', 'can', 'does', 'the', 'for', 'with', 'about', 'your', 'have',
+  'this', 'that', 'from', 'they', 'would', 'there', 'their', 'will', 'when',
+  'make', 'like', 'just', 'over', 'such', 'into', 'other', 'than', 'then',
+  'more', 'some', 'could', 'them', 'these', 'also', 'been', 'being', 'which',
+  'were', 'said', 'each', 'she', 'her', 'him', 'his', 'has', 'had', 'may',
+  'after', 'know', 'need', 'want', 'tell', 'get', 'got', 'are', 'was', 'is'
+]);
+
+// Extract meaningful keywords from text (for auto-learning)
+function extractKeywords(text) {
+  return text.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .split(/\s+/)
+    .filter(word => word.length >= 3 && !STOP_WORDS.has(word));
+}
+
+// AUTO-LEARNING: Generate intent score by matching keywords against patterns
+function getAutoIntentScore(text, knowledgeBase) {
+  const keywords = extractKeywords(text);
+  if (keywords.length === 0) return {};
+
+  const scores = {};
+
+  for (const [key, data] of Object.entries(knowledgeBase)) {
+    let score = 0;
+
+    for (const keyword of keywords) {
+      for (const pattern of data.patterns) {
+        // Direct pattern match
+        if (pattern.includes(keyword)) {
+          score += keyword.length * 2;
+        }
+        // Partial word match (e.g., "renovation" matches "renovate")
+        const patternWords = pattern.split(/\s+/);
+        for (const pWord of patternWords) {
+          if (pWord.startsWith(keyword) || keyword.startsWith(pWord)) {
+            score += Math.min(keyword.length, pWord.length);
+          }
+        }
+      }
+    }
+
+    if (score > 0) {
+      scores[key] = score;
+    }
+  }
+
+  return scores;
+}
+
+// Main intent detection function (combines manual + auto-learning)
+function checkIntent(text, knowledgeBase) {
   const lower = text.toLowerCase();
 
-  for (const [key, config] of Object.entries(INTENT_MAPPINGS)) {
+  // 1. First check manual high-priority mappings
+  for (const [key, config] of Object.entries(MANUAL_INTENT_MAPPINGS)) {
     const hasAction = config.actions.some(action => lower.includes(action));
     const hasTopic = config.topics.some(topic => lower.includes(topic));
 
     if (hasAction && hasTopic) {
-      return key; // Return the knowledge base key to boost
+      return { key, score: 100, source: 'manual' }; // High priority
     }
   }
+
+  // 2. Check if it's a question and use auto-learning
+  const isQuestion = QUESTION_PHRASES.some(phrase => lower.includes(phrase));
+  const autoScores = getAutoIntentScore(lower, knowledgeBase);
+
+  // Find the best auto-match
+  let bestKey = null;
+  let bestScore = 0;
+
+  for (const [key, score] of Object.entries(autoScores)) {
+    if (score > bestScore) {
+      bestScore = score;
+      bestKey = key;
+    }
+  }
+
+  // Only return if score is significant enough
+  if (bestKey && bestScore >= 6) {
+    return {
+      key: bestKey,
+      score: isQuestion ? bestScore + 20 : bestScore,
+      source: 'auto'
+    };
+  }
+
   return null;
 }
 
@@ -505,8 +627,8 @@ function findMatch(text) {
   // Correct typos before pattern matching
   const corrected = correctTypos(lower);
 
-  // Check for intent (action + topic combinations)
-  const intentMatch = checkIntent(lower);
+  // Check for intent (action + topic combinations) - uses both manual and auto-learning
+  const intentMatch = checkIntent(lower, KNOWLEDGE_BASE);
 
   // Scoring-based matching for better accuracy
   let bestMatch = null;
@@ -516,9 +638,10 @@ function findMatch(text) {
     let score = 0;
     let matchedPatterns = 0;
 
-    // Big bonus if intent detection matched this key
-    if (intentMatch === key) {
-      score += 50;
+    // Bonus if intent detection matched this key
+    // Manual mappings get higher priority (100), auto-learning gets variable score
+    if (intentMatch && intentMatch.key === key) {
+      score += intentMatch.score;
     }
 
     for (const pattern of data.patterns) {
