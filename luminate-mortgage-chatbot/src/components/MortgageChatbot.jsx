@@ -1,8 +1,13 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.6
+ * Version: 1.0.7
  *
  * CHANGELOG:
+ * v1.0.7 - Smart pattern matching
+ *        - Scoring-based algorithm (longer patterns = higher priority)
+ *        - Word boundary detection for accuracy
+ *        - Multiple keyword matches boost relevance
+ *        - Handles natural questions like "tell me about X"
  * v1.0.6 - Bug fixes
  *        - Fixed pattern matching (self-employed now works)
  *        - Restored version display in header
@@ -22,7 +27,7 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.6';
+const VERSION = '1.0.7';
 
 // Message reducer for state management
 function messageReducer(state, action) {
@@ -260,20 +265,47 @@ const DEFAULT_QUICK_REPLIES = ['Loan options', 'Self-employed?', 'First-time buy
 function findMatch(text) {
   const lower = text.toLowerCase();
 
-  // Check for lead capture triggers
+  // Check for lead capture triggers first
   for (const trigger of LEAD_TRIGGERS) {
     if (lower.includes(trigger)) {
       return { type: 'lead_capture' };
     }
   }
 
-  // Search knowledge base
-  for (const [, data] of Object.entries(KNOWLEDGE_BASE)) {
+  // Scoring-based matching for better accuracy
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const [key, data] of Object.entries(KNOWLEDGE_BASE)) {
+    let score = 0;
+    let matchedPatterns = 0;
+
     for (const pattern of data.patterns) {
       if (lower.includes(pattern)) {
-        return { type: 'knowledge', data };
+        matchedPatterns++;
+        // Longer patterns are more specific = higher score
+        score += pattern.length * 2;
+        // Bonus for exact word boundaries (not partial matches)
+        const regex = new RegExp(`\\b${pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        if (regex.test(lower)) {
+          score += 10;
+        }
       }
     }
+
+    // Bonus for multiple pattern matches (topic is very relevant)
+    if (matchedPatterns > 1) {
+      score += matchedPatterns * 5;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = data;
+    }
+  }
+
+  if (bestMatch) {
+    return { type: 'knowledge', data: bestMatch };
   }
 
   return null;
