@@ -1,8 +1,12 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.9
+ * Version: 1.0.10
  *
  * CHANGELOG:
+ * v1.0.10 - Intent detection system
+ *         - New action + topic matching (e.g., "cancel" + "pmi" → pmi_removal)
+ *         - More flexible PMI removal patterns
+ *         - Better handling of natural questions
  * v1.0.9 - Blog content integration
  *        - Added 203(k) renovation loan info
  *        - Added Value Assurance program
@@ -41,7 +45,7 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.9';
+const VERSION = '1.0.10';
 
 // Common typo corrections for mortgage-related terms
 const TYPO_CORRECTIONS = {
@@ -137,6 +141,40 @@ function correctTypos(text) {
     corrected = corrected.replace(regex, correction);
   }
   return corrected;
+}
+
+// Intent detection - maps action words + topic to specific knowledge base entries
+const INTENT_MAPPINGS = {
+  // "cancel/remove/stop/get rid of" + "pmi" → pmi_removal
+  pmi_removal: {
+    actions: ['cancel', 'remove', 'stop', 'get rid', 'eliminate', 'drop', 'end'],
+    topics: ['pmi', 'private mortgage insurance', 'mortgage insurance']
+  },
+  // "apply/start/begin" + "loan/mortgage" → apply
+  apply: {
+    actions: ['apply', 'start', 'begin', 'submit'],
+    topics: ['application', 'loan', 'mortgage', 'process']
+  },
+  // "refinance/refi/lower" + "rate/payment" → refinance
+  refinance: {
+    actions: ['refinance', 'refi', 'lower', 'reduce'],
+    topics: ['rate', 'payment', 'mortgage', 'interest']
+  }
+};
+
+// Function to check for intent (action + topic combinations)
+function checkIntent(text) {
+  const lower = text.toLowerCase();
+
+  for (const [key, config] of Object.entries(INTENT_MAPPINGS)) {
+    const hasAction = config.actions.some(action => lower.includes(action));
+    const hasTopic = config.topics.some(topic => lower.includes(topic));
+
+    if (hasAction && hasTopic) {
+      return key; // Return the knowledge base key to boost
+    }
+  }
+  return null;
 }
 
 // Function to check for negations and return alternative response
@@ -413,7 +451,7 @@ const KNOWLEDGE_BASE = {
   },
 
   pmi_removal: {
-    patterns: ['remove pmi', 'cancel pmi', 'get rid of pmi', 'stop pmi', 'pmi cancellation', 'drop pmi'],
+    patterns: ['remove pmi', 'cancel pmi', 'get rid of pmi', 'stop pmi', 'pmi cancellation', 'drop pmi', 'cancel my pmi', 'remove my pmi', 'stop paying pmi', 'eliminate pmi', 'pmi removal', 'get off pmi', 'end pmi'],
     response: "3 ways to cancel PMI on conventional loans! 📉\n\n1️⃣ Automatic (78% LTV):\n• PMI auto-cancels at 78% loan-to-value\n• Based on original home value\n\n2️⃣ Request at 80% LTV:\n• You request cancellation\n• Based on original value\n• Must be current on payments\n\n3️⃣ Based on Current Value:\n• At 75% LTV after 2 years\n• At 80% LTV after 5 years\n• Home improvements can help!\n\n🗽 NY special rule: Based on appraised value at 75% LTV!",
     quickReplies: ['PMI info', 'Refinance options', 'Talk to a specialist']
   },
@@ -467,6 +505,9 @@ function findMatch(text) {
   // Correct typos before pattern matching
   const corrected = correctTypos(lower);
 
+  // Check for intent (action + topic combinations)
+  const intentMatch = checkIntent(lower);
+
   // Scoring-based matching for better accuracy
   let bestMatch = null;
   let bestScore = 0;
@@ -474,6 +515,11 @@ function findMatch(text) {
   for (const [key, data] of Object.entries(KNOWLEDGE_BASE)) {
     let score = 0;
     let matchedPatterns = 0;
+
+    // Big bonus if intent detection matched this key
+    if (intentMatch === key) {
+      score += 50;
+    }
 
     for (const pattern of data.patterns) {
       // Check both original and corrected text
