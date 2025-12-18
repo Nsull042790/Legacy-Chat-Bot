@@ -29,7 +29,7 @@ A React-based mortgage chatbot widget for Luminate Bank, designed for GitHub Pag
 - **Vite** - Fast build tool
 - **Tailwind CSS** - Utility-first styling
 - **Lucide React** - Icon library
-- **gh-pages** - GitHub Pages deployment
+- **GitHub Actions** - Automated deployment to GitHub Pages
 
 ## Setup Instructions
 
@@ -87,50 +87,45 @@ luminate-mortgage-chatbot/
 └── package.json
 ```
 
-## Deploying to GitHub Pages
+## Deploying to GitHub Pages (GitHub Actions)
+
+Deployment is automated via GitHub Actions. Every push to `main` triggers a build and deploy.
 
 ### First-Time Setup
 
-1. Create a new repository on GitHub named `luminate-mortgage-chatbot`
+1. Go to your repository on GitHub
 
-2. Update the `base` in `vite.config.js` if your repo name is different:
+2. Navigate to **Settings** > **Pages**
+
+3. Under "Build and deployment":
+   - **Source**: Select "GitHub Actions"
+
+4. Update the `base` in `vite.config.js` to match your repo name:
    ```js
    export default defineConfig({
      plugins: [react()],
-     base: '/your-repo-name/',
+     base: '/Legacy-Chat-Bot/',  // Your repo name
    })
    ```
 
-3. Push your code to GitHub:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/luminate-mortgage-chatbot.git
-   git push -u origin main
-   ```
+5. Push to the `main` branch - GitHub Actions will automatically build and deploy!
 
-### Deploying Updates
+### How It Works
 
-Run the deploy command:
+The workflow (`.github/workflows/deploy.yml`) automatically:
+1. Checks out the code
+2. Installs dependencies
+3. Builds the production bundle
+4. Deploys to GitHub Pages
 
-```bash
-npm run deploy
-```
+### Manual Trigger
 
-This will:
-1. Build the production bundle
-2. Push to the `gh-pages` branch
-3. Your site will be live at: `https://YOUR_USERNAME.github.io/luminate-mortgage-chatbot/`
+You can also trigger deployment manually:
+1. Go to **Actions** tab in your repository
+2. Select "Deploy to GitHub Pages"
+3. Click "Run workflow"
 
-### Enable GitHub Pages
-
-1. Go to your repository on GitHub
-2. Navigate to **Settings** > **Pages**
-3. Under "Source", select `gh-pages` branch
-4. Click Save
-5. Wait a few minutes for deployment
+Your site will be live at: `https://YOUR_USERNAME.github.io/Legacy-Chat-Bot/`
 
 ## Embedding in Duda
 
@@ -138,7 +133,7 @@ To embed the chatbot in a Duda website, add this iframe code:
 
 ```html
 <iframe
-  src="https://YOUR_USERNAME.github.io/luminate-mortgage-chatbot/"
+  src="https://YOUR_USERNAME.github.io/Legacy-Chat-Bot/"
   width="400"
   height="720"
   frameborder="0"
@@ -151,7 +146,7 @@ Or as a floating widget (add to Duda's custom HTML):
 ```html
 <div style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
   <iframe
-    src="https://YOUR_USERNAME.github.io/luminate-mortgage-chatbot/"
+    src="https://YOUR_USERNAME.github.io/Legacy-Chat-Bot/"
     width="400"
     height="720"
     frameborder="0"
