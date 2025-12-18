@@ -18,37 +18,46 @@
   <div id="lmc-window">
     <div id="lmc-header">
       <div id="lmc-header-info">
-        <div id="lmc-avatar">🏠</div>
+        <div id="lmc-avatar">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+        </div>
         <div>
           <div id="lmc-title">Legacy Mortgage</div>
-          <div id="lmc-subtitle">We typically reply instantly</div>
+          <div id="lmc-subtitle">A Luminate Bank Division · v1.0.17</div>
         </div>
       </div>
-      <button id="lmc-close-btn">×</button>
+      <button id="lmc-restart-btn" title="Start over">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+          <path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+        </svg>
+      </button>
     </div>
     <div id="lmc-messages"></div>
     <div id="lmc-quick-replies"></div>
     <div id="lmc-input-area">
-      <input type="text" id="lmc-input" placeholder="Type your message...">
+      <input type="text" id="lmc-input" placeholder="Ask me anything about mortgages...">
       <button id="lmc-send">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
           <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
         </svg>
       </button>
     </div>
-    <div id="lmc-footer">v1.0.17 • Legacy Mortgage Division</div>
+    <div id="lmc-footer">Legacy Mortgage Division · Luminate Bank · NMLS #1281698</div>
   </div>
 </div>
 
 <style>
 :root {
-  --lmc-primary: #1e40af;
-  --lmc-primary-dark: #1e3a8a;
-  --lmc-primary-light: #3b82f6;
-  --lmc-bg: #f1f5f9;
+  --lmc-primary: #0D1834;
+  --lmc-primary-dark: #0a1229;
+  --lmc-primary-light: #1a2d4d;
+  --lmc-accent: #96DAF8;
+  --lmc-bg: #f9fafb;
   --lmc-white: #ffffff;
-  --lmc-gray: #64748b;
-  --lmc-gray-light: #e2e8f0;
+  --lmc-gray: #6b7280;
+  --lmc-gray-light: #e5e7eb;
 }
 
 #lmc-widget {
@@ -60,13 +69,13 @@
 }
 
 #lmc-btn {
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--lmc-primary) 0%, var(--lmc-primary-dark) 100%);
+  background: var(--lmc-primary);
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(30, 64, 175, 0.4);
+  box-shadow: 0 4px 16px rgba(13, 24, 52, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,8 +83,8 @@
 }
 
 #lmc-btn:hover {
-  transform: scale(1.08);
-  box-shadow: 0 6px 25px rgba(30, 64, 175, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(13, 24, 52, 0.5);
 }
 
 #lmc-window {
@@ -103,9 +112,9 @@
 }
 
 #lmc-header {
-  background: linear-gradient(135deg, var(--lmc-primary) 0%, var(--lmc-primary-dark) 100%);
+  background: var(--lmc-primary);
   color: white;
-  padding: 20px;
+  padding: 16px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -118,14 +127,17 @@
 }
 
 #lmc-avatar {
-  width: 48px;
-  height: 48px;
-  background: rgba(255,255,255,0.2);
+  width: 40px;
+  height: 40px;
+  background: var(--lmc-accent);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+}
+
+#lmc-avatar svg {
+  fill: var(--lmc-primary);
 }
 
 #lmc-title {
@@ -134,29 +146,29 @@
 }
 
 #lmc-subtitle {
-  font-size: 13px;
-  opacity: 0.85;
+  font-size: 12px;
+  color: var(--lmc-accent);
   margin-top: 2px;
 }
 
-#lmc-close-btn {
-  background: rgba(255,255,255,0.15);
+#lmc-restart-btn {
+  background: transparent;
   border: none;
-  color: white;
-  width: 32px;
-  height: 32px;
+  color: var(--lmc-accent);
+  padding: 8px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
-#lmc-close-btn:hover {
-  background: rgba(255,255,255,0.25);
+#lmc-restart-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
 }
+
 
 #lmc-messages {
   flex: 1;
@@ -185,12 +197,13 @@
   background: var(--lmc-white);
   align-self: flex-start;
   border-bottom-left-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  color: #1e293b;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  border: 1px solid var(--lmc-gray-light);
+  color: #1f2937;
 }
 
 .lmc-msg.user {
-  background: linear-gradient(135deg, var(--lmc-primary) 0%, var(--lmc-primary-light) 100%);
+  background: var(--lmc-primary);
   color: white;
   align-self: flex-end;
   border-bottom-right-radius: 6px;
@@ -208,20 +221,18 @@
 
 .lmc-qr {
   background: var(--lmc-white);
-  border: 2px solid var(--lmc-primary);
+  border: 1px solid var(--lmc-accent);
   color: var(--lmc-primary);
-  padding: 10px 16px;
-  border-radius: 25px;
-  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .lmc-qr:hover {
-  background: var(--lmc-primary);
-  color: white;
-  transform: translateY(-2px);
+  background: rgba(150, 218, 248, 0.2);
 }
 
 #lmc-input-area {
@@ -247,21 +258,26 @@
 }
 
 #lmc-send {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--lmc-primary) 0%, var(--lmc-primary-light) 100%);
+  background: var(--lmc-primary);
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: background 0.2s;
+  color: white;
 }
 
 #lmc-send:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 15px rgba(30, 64, 175, 0.4);
+  background: var(--lmc-primary-light);
+}
+
+#lmc-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 #lmc-footer {
@@ -300,18 +316,18 @@
   width: 100%;
   padding: 14px;
   margin-top: 12px;
-  background: linear-gradient(135deg, var(--lmc-primary) 0%, var(--lmc-primary-light) 100%);
+  background: var(--lmc-primary);
   color: white;
   border: none;
   border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: background 0.2s;
 }
 
 .lmc-lead-form button:hover {
-  transform: translateY(-2px);
+  background: var(--lmc-primary-light);
 }
 
 @media (max-width: 480px) {
@@ -414,6 +430,8 @@
 
     pmi: { patterns: ['pmi', 'private mortgage insurance', 'mortgage insurance'], response: "PMI (Private Mortgage Insurance) protects the lender if you default.\n\n• Required when down payment < 20%\n• Costs 0.5% - 1% of loan annually\n• Drops off at 20% equity (conventional)\n• VA loans = NO PMI!\n• Our Jumbo loans = NO PMI with 10% down!\n\nWe have multiple ways to avoid PMI!", quickReplies: ['VA loans', 'Jumbo loans', 'Down payment options'] },
 
+    pmi_removal: { patterns: ['remove pmi', 'cancel pmi', 'get rid of pmi', 'stop pmi', 'pmi cancellation', 'drop pmi', 'cancel my pmi', 'remove my pmi', 'stop paying pmi', 'eliminate pmi'], response: "3 ways to cancel PMI on conventional loans! 📉\n\n1️⃣ <strong>Automatic (78% LTV):</strong>\n• PMI auto-cancels at 78% loan-to-value\n• Based on original home value\n\n2️⃣ <strong>Request at 80% LTV:</strong>\n• You request cancellation\n• Based on original value\n• Must be current on payments\n\n3️⃣ <strong>Based on Current Value:</strong>\n• At 75% LTV after 2 years\n• At 80% LTV after 5 years\n• Home improvements can help!\n\n🗽 NY special rule: Based on appraised value at 75% LTV!", quickReplies: ['PMI info', 'Refinance options', 'Talk to specialist'] },
+
     documents: { patterns: ['document', 'documents', 'paperwork', 'what do i need'], response: "Here's what you'll typically need:\n\n📄 <strong>Income:</strong> Pay stubs (30 days), W-2s (2 years)\n📄 <strong>Assets:</strong> Bank statements (2 months)\n📄 <strong>ID:</strong> Driver's license, SSN\n📄 Tax returns (if self-employed)\n📄 Gift letter (if using gift funds)\n\nSelf-employed? We have flexible documentation options!", quickReplies: ['Self-employed docs', 'Bank statement loans', 'Talk to specialist'] },
 
     timeline: { patterns: ['how long', 'timeline', 'time to close', 'closing time'], response: "Typical mortgage timeline:\n\n📅 Pre-approval: 1-3 days\n📅 Home search: Varies\n📅 Under contract to close: 30-45 days\n\nWith 25+ years experience, we often close faster!", quickReplies: ['Start pre-approval', 'Talk to specialist'] },
@@ -427,7 +445,6 @@
 
   var btn = document.getElementById('lmc-btn');
   var win = document.getElementById('lmc-window');
-  var closeBtn = document.getElementById('lmc-close-btn');
   var iconOpen = document.getElementById('lmc-icon-open');
   var iconClose = document.getElementById('lmc-icon-close');
   var messagesDiv = document.getElementById('lmc-messages');
@@ -444,8 +461,17 @@
   }
 
   function showWelcome() {
-    addMsg("Hi there! 👋 I'm here to help with your mortgage questions.\n\nWhat brings you here today?", 'bot');
-    showQR(['Loan options', 'First-time buyer', 'Self-employed', 'Get pre-approved']);
+    addMsg("Hey there! 👋 I'm your Legacy Mortgage assistant. With 25+ years of experience and Top 25 Lender status, we make home financing easy.\n\nHow can I help you today?", 'bot');
+    showQR(['Loan options', 'Self-employed?', 'First-time buyer', 'Get pre-approved']);
+  }
+
+  function restart() {
+    messagesDiv.innerHTML = '';
+    qrDiv.innerHTML = '';
+    messageCount = 0;
+    conversationContext.lastTopic = null;
+    conversationContext.messageCount = 0;
+    showWelcome();
   }
 
   function addMsg(text, type) {
@@ -559,8 +585,10 @@
     if (text) { handleInput(text); input.value = ''; }
   }
 
+  var restartBtn = document.getElementById('lmc-restart-btn');
+
   btn.addEventListener('click', toggle);
-  closeBtn.addEventListener('click', toggle);
+  restartBtn.addEventListener('click', restart);
   sendBtn.addEventListener('click', send);
   input.addEventListener('keypress', function(e) { if (e.key === 'Enter') send(); });
 
