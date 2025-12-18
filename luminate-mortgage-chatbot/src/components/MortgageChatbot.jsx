@@ -1,8 +1,14 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.11
+ * Version: 1.0.12
  *
  * CHANGELOG:
+ * v1.0.12 - Conversation memory & proactive closing
+ *         - Tracks last topic discussed for context
+ *         - Follow-up detection ("tell me more", "these loans")
+ *         - Deeper responses on follow-up questions
+ *         - Proactive lead capture after 2nd message on topic
+ *         - Smoother conversation flow
  * v1.0.11 - Auto-learning intent system
  *         - Manual intent mappings for all blog topics
  *         - Auto-learning: extracts keywords from user input
@@ -52,7 +58,69 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.11';
+const VERSION = '1.0.12';
+
+// ==================== CONVERSATION MEMORY ====================
+// Follow-up phrases that indicate user wants more info on previous topic
+const FOLLOW_UP_PHRASES = [
+  'tell me more', 'more about', 'more info', 'more information',
+  'explain more', 'go on', 'continue', 'what else',
+  'these loans', 'those loans', 'that loan', 'this loan',
+  'that option', 'those options', 'these options',
+  'that program', 'those programs', 'these programs',
+  'how does that work', 'how do they work', 'how does it work',
+  'sounds good', 'sounds interesting', 'interested',
+  'yes', 'yeah', 'yep', 'sure', 'ok tell me',
+  'and', 'what about'
+];
+
+// Deep-dive responses for follow-up questions (provides more detail + closing)
+const FOLLOW_UP_RESPONSES = {
+  self_employed: {
+    response: "Let me break down your best options as a self-employed borrower:\n\n📊 **Bank Statement Loans:**\n• We average your deposits over 12-24 months\n• Personal OR business accounts work\n• No tax returns needed!\n• Great if write-offs reduce your taxable income\n\n📊 **Asset Depletion:**\n• Use retirement/investment accounts\n• We calculate \"income\" from assets\n• Perfect for high net worth borrowers\n\n💡 The best program depends on your specific situation. A quick call with one of our specialists can identify which option saves you the most!",
+    quickReplies: ['Talk to a specialist', 'Get pre-approved', 'Bank statement details']
+  },
+  bank_statement: {
+    response: "Here's exactly how Bank Statement Loans work:\n\n📋 **The Process:**\n1. Provide 12 or 24 months of statements\n2. We calculate average monthly deposits\n3. Apply an expense factor (usually 50%)\n4. That becomes your qualifying income!\n\n✅ **Example:**\n• $20,000/month average deposits\n• 50% expense factor = $10,000 income\n• Can qualify for $400K+ loan!\n\n🎯 **Best Part:** Your tax returns showing $60K don't limit you when deposits show $240K!\n\nWant to see what you'd qualify for? I can connect you with a specialist who does these daily.",
+    quickReplies: ['Talk to a specialist', 'Get pre-approved', 'Other self-employed options']
+  },
+  non_qm: {
+    response: "Non-QM loans are our specialty — here's why they're powerful:\n\n🔓 **Who Benefits:**\n• Self-employed with write-offs\n• Real estate investors (DSCR loans)\n• Recent credit events (2+ years ago)\n• Foreign nationals\n• High assets, complex income\n\n📈 **What's Possible:**\n• Up to $3M+ loan amounts\n• Interest-only options\n• 40-year terms available\n• Bank statement qualification\n\nAs a Top Non-QM Lender, we close these when others can't. Let's see what we can do for you!",
+    quickReplies: ['Talk to a specialist', 'Bank statement loans', 'Get pre-approved']
+  },
+  fha: {
+    response: "FHA is fantastic for many buyers — here's the full picture:\n\n✅ **Pros:**\n• 3.5% down (gift funds OK!)\n• 580 credit score minimum\n• Higher DTI allowed (up to 50%+)\n• Seller can pay up to 6% closing costs\n\n⚠️ **Considerations:**\n• Mortgage insurance for life of loan\n• Property must meet FHA standards\n• Loan limits vary by county\n\n💡 **Pro Tip:** If credit improves later, you can refinance to conventional and drop the MI!\n\nReady to see if FHA is right for you? A quick pre-approval takes just minutes.",
+    quickReplies: ['Get pre-approved', 'FHA vs Conventional', 'Talk to a specialist']
+  },
+  va: {
+    response: "VA loans are the best deal in mortgages — here's everything:\n\n🎖️ **Unbeatable Benefits:**\n• TRUE 0% down payment\n• ZERO PMI — ever!\n• Lower rates than conventional\n• No prepayment penalties\n• Easier credit requirements\n\n📋 **Eligibility:**\n• 90+ days active duty (wartime)\n• 181+ days active duty (peacetime)\n• 6+ years National Guard/Reserves\n• Surviving spouses may qualify\n\n💰 **Funding Fee:** 2.15% first use (can be financed)\n• Disabled veterans: EXEMPT!\n\nThank you for your service! Let's get you into your new home.",
+    quickReplies: ['Check my eligibility', 'Get pre-approved', 'Talk to a specialist']
+  },
+  jumbo: {
+    response: "Our Jumbo loans are industry-leading — here's why:\n\n💎 **Key Advantages:**\n• 10% down with NO PMI!\n• Loan amounts $766,550+\n• Up to $3M+ available\n• Competitive rates\n• Primary & second homes\n\n📊 **Requirements:**\n• 700+ credit score ideal\n• 6-12 months reserves\n• Stable income history\n• Full documentation\n\n🏠 **Perfect For:**\n• Luxury homes\n• High-cost areas (NYC, NJ, FL)\n• High earners\n\nHigh-value properties need specialized handling. Let me connect you with our Jumbo specialist.",
+    quickReplies: ['Talk to a specialist', 'Get pre-approved', 'Down payment options']
+  },
+  down_payment: {
+    response: "Let me show you ALL your down payment options:\n\n💰 **Zero Down:**\n• VA: $0 (veterans/military)\n• USDA: $0 (eligible rural areas)\n\n💰 **Low Down:**\n• FHA: 3.5%\n• Conventional: 3-5%\n• Jumbo: 10% (NO PMI!)\n\n🎁 **Assistance Programs:**\n• NJ Smart Start: Up to $15,000!\n• PA Keystone: Up to $6,000\n• K-FIT: 5% forgiven over 10 years\n\n💡 Many buyers qualify for multiple programs! Let's find the best combination for you.",
+    quickReplies: ['Talk to a specialist', 'State programs', 'Get pre-approved']
+  },
+  refinance: {
+    response: "Here's when refinancing makes sense:\n\n✅ **Good Reasons to Refi:**\n• Drop rate by 0.5%+ = savings!\n• Remove PMI (hit 20% equity)\n• Cash out for renovations/debt\n• Switch ARM to fixed\n• Shorten loan term\n\n📊 **Break-Even Math:**\n• Closing costs ÷ monthly savings = months to break even\n• Staying 3+ years? Usually worth it!\n\n💰 **Cash-Out Options:**\n• Up to 80% LTV conventional\n• Up to 85% LTV FHA\n• Up to 100% LTV VA!\n\nRates change daily. Want to see your numbers?",
+    quickReplies: ['Check my rate', 'Cash-out options', 'Talk to a specialist']
+  },
+  pre_approval: {
+    response: "Pre-approval is your secret weapon — here's why:\n\n🏆 **Benefits:**\n• Know your EXACT budget\n• Sellers take you seriously\n• Beat other buyers to offers\n• Lock your rate early\n• Identify issues before house hunting\n\n📋 **What We Need:**\n• ID & Social Security\n• Pay stubs (30 days)\n• W-2s or tax returns (2 years)\n• Bank statements (2 months)\n\n⏱️ **Timeline:** Usually 24-48 hours!\n\n💡 No cost, no obligation. Ready to see what you qualify for?",
+    quickReplies: ['Start pre-approval', 'Talk to a specialist', 'Documents needed']
+  },
+  // Default follow-up for topics without specific deep-dive
+  default: {
+    response: "I'd love to give you more specific details!\n\nThe best way to get personalized information is a quick conversation with one of our loan specialists. They can:\n\n✓ Answer your specific questions\n✓ Run scenarios for your situation\n✓ Show you exact rates and payments\n✓ Identify programs you qualify for\n\nNo pressure, no obligation — just helpful information. Want me to connect you?",
+    quickReplies: ['Talk to a specialist', 'Get pre-approved', 'Ask another question']
+  }
+};
+
+// Proactive closing message after providing follow-up info
+const CLOSING_PUSH = "\n\n🎯 **Ready to take the next step?** Our specialists close loans like this every day. A quick 5-minute call can answer all your questions!";
 
 // Common typo corrections for mortgage-related terms
 const TYPO_CORRECTIONS = {
@@ -632,6 +700,7 @@ function findMatch(text) {
 
   // Scoring-based matching for better accuracy
   let bestMatch = null;
+  let bestKey = null;
   let bestScore = 0;
 
   for (const [key, data] of Object.entries(KNOWLEDGE_BASE)) {
@@ -666,11 +735,12 @@ function findMatch(text) {
     if (score > bestScore) {
       bestScore = score;
       bestMatch = data;
+      bestKey = key;
     }
   }
 
   if (bestMatch) {
-    return { type: 'knowledge', data: bestMatch };
+    return { type: 'knowledge', data: bestMatch, key: bestKey };
   }
 
   return null;
@@ -685,8 +755,28 @@ export default function MortgageChatbot() {
     step: 0,
     data: { name: '', phone: '', email: '' }
   });
+  // Conversation memory - tracks context for follow-up questions
+  const [conversationContext, setConversationContext] = useState({
+    lastTopic: null,      // Last knowledge base key matched
+    lastTopicName: null,  // Human-readable topic name
+    messageCount: 0       // Messages on current topic
+  });
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Check if user is asking a follow-up question
+  const isFollowUp = (text) => {
+    const lower = text.toLowerCase();
+    return FOLLOW_UP_PHRASES.some(phrase => lower.includes(phrase));
+  };
+
+  // Get follow-up response for a topic
+  const getFollowUpResponse = (topicKey) => {
+    if (FOLLOW_UP_RESPONSES[topicKey]) {
+      return FOLLOW_UP_RESPONSES[topicKey];
+    }
+    return FOLLOW_UP_RESPONSES.default;
+  };
 
   // Initialize with welcome message
   useEffect(() => {
@@ -782,22 +872,51 @@ export default function MortgageChatbot() {
       return;
     }
 
+    // Check if this is a follow-up question about the previous topic
+    if (isFollowUp(text) && conversationContext.lastTopic) {
+      const followUp = getFollowUpResponse(conversationContext.lastTopic);
+      // Add closing push if this is 2nd+ message on topic
+      const response = conversationContext.messageCount >= 1
+        ? followUp.response + CLOSING_PUSH
+        : followUp.response;
+
+      addBotMessage(response, followUp.quickReplies);
+
+      // Update context
+      setConversationContext(prev => ({
+        ...prev,
+        messageCount: prev.messageCount + 1
+      }));
+      return;
+    }
+
     // Find matching response
     const match = findMatch(text);
 
     if (match?.type === 'lead_capture') {
       const result = handleLeadCapture(text);
       addBotMessage(result.response, result.quickReplies);
+      // Reset context when entering lead capture
+      setConversationContext({ lastTopic: null, lastTopicName: null, messageCount: 0 });
     } else if (match?.type === 'negation') {
       // Handle negation responses (e.g., "I don't have 20% down")
       addBotMessage(match.data.response, match.data.quickReplies);
+      setConversationContext({ lastTopic: 'negation', lastTopicName: 'alternatives', messageCount: 1 });
     } else if (match?.type === 'knowledge') {
       addBotMessage(match.data.response, match.data.quickReplies);
+      // Store the topic for follow-up questions
+      setConversationContext({
+        lastTopic: match.key || null,
+        lastTopicName: match.key || null,
+        messageCount: 1
+      });
     } else {
       addBotMessage(
         "I can help with lots of mortgage topics!\n\n• Loan types: FHA, VA, Conventional, Jumbo\n• Self-employed & Non-QM loans\n• First-time buyer programs\n• Refinancing & cash-out\n• Bridge loans & more!\n\nOr I can connect you with a specialist!",
         ['Loan options', 'Self-employed?', 'First-time buyer', 'Talk to a specialist']
       );
+      // Reset context on fallback
+      setConversationContext({ lastTopic: null, lastTopicName: null, messageCount: 0 });
     }
   };
 
@@ -809,6 +928,7 @@ export default function MortgageChatbot() {
     dispatch({ type: 'RESET' });
     setInputValue('');
     setLeadCapture({ active: false, step: 0, data: { name: '', phone: '', email: '' } });
+    setConversationContext({ lastTopic: null, lastTopicName: null, messageCount: 0 });
 
     setTimeout(() => {
       dispatch({
