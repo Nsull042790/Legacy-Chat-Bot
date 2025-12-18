@@ -1,13 +1,15 @@
 /**
- * Luminate Bank Mortgage Chatbot
- * Version: 1.0.4
+ * Legacy Mortgage Division Chatbot (Luminate Bank)
+ * Version: 1.0.5
  *
  * CHANGELOG:
+ * v1.0.5 - Company-specific update
+ *        - Added Legacy Mortgage Division branding
+ *        - Added company-specific loan products
+ *        - Added Non-QM, Bridge, Reverse Mortgage info
+ *        - Added service areas and contact info
+ *        - Added Home Sale Assured program
  * v1.0.4 - Production release
- *        - Removed debug elements
- *        - Expanded knowledge base (40+ topics)
- *        - Added lead capture flow
- *        - Fixed message content rendering
  * v1.0.3 - Debug version with content diagnostics
  * v1.0.2 - Debug version (message in state, bubble empty)
  * v1.0.1 - Attempted fix with unique IDs
@@ -17,7 +19,7 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.4';
+const VERSION = '1.0.5';
 
 // Message reducer for state management
 function messageReducer(state, action) {
@@ -42,167 +44,203 @@ function messageReducer(state, action) {
   }
 }
 
-// Comprehensive Knowledge Base
+// Comprehensive Knowledge Base - Legacy Mortgage Division
 const KNOWLEDGE_BASE = {
-  // Down Payment
+  // ==================== COMPANY INFO ====================
+  about: {
+    patterns: ['about', 'who are you', 'legacy mortgage', 'luminate', 'company', 'tell me about'],
+    response: "Legacy Mortgage Division is part of Luminate Bank — a Top 25 Retail Mortgage Lender nationwide! 🏆\n\n✓ 700+ mortgage professionals\n✓ 25+ years of experience\n✓ FDIC-insured institution\n✓ Licensed in all 50 states\n✓ Specializing in NJ, NY, FL & PA\n\nWe combine big-bank security with personalized service!",
+    quickReplies: ['Loan options', 'Service areas', 'Get pre-approved']
+  },
+
+  service_areas: {
+    patterns: ['where do you', 'service area', 'what states', 'locations', 'new jersey', 'new york', 'florida', 'pennsylvania', 'nj', 'ny', 'fl', 'pa'],
+    response: "We're licensed in all 50 states! 🇺🇸\n\nOur specialty areas:\n• New Jersey (HQ in Little Falls)\n• New York\n• Florida\n• Pennsylvania\n\nNo matter where you're buying, we can help. Our team averages 10+ years of experience!",
+    quickReplies: ['Contact us', 'Get pre-approved', 'Loan options']
+  },
+
+  contact: {
+    patterns: ['contact', 'phone', 'email', 'address', 'office', 'reach', 'call', 'little falls'],
+    response: "📍 Legacy Mortgage Division\n219 Paterson Ave\nLittle Falls, NJ 07424\n\n🌐 legacymortgagedivision.com\n\nReady to get started? I can connect you with a loan officer who specializes in your area!",
+    quickReplies: ['Talk to a specialist', 'Apply now', 'Get pre-approved']
+  },
+
+  // ==================== LOAN PRODUCTS ====================
   down_payment: {
     patterns: ['down payment', 'downpayment', 'how much down', 'money down', 'upfront'],
-    response: "Great question! Down payment requirements vary by loan type:\n\n• Conventional: 3-5% minimum\n• FHA: 3.5% with 580+ credit\n• VA: 0% for eligible veterans\n• USDA: 0% for rural areas\n\nMany first-time buyer programs offer down payment assistance too!",
-    quickReplies: ['Tell me about FHA', 'VA loan info', 'What is PMI?']
+    response: "Down payment requirements vary by loan type:\n\n• Conventional: 3-5% minimum\n• FHA: 3.5% with 580+ credit\n• VA: 0% for eligible veterans\n• USDA: 0% for rural areas\n• Jumbo: As low as 10% with NO PMI!\n\nWe also have down payment assistance programs available!",
+    quickReplies: ['Jumbo loans', 'FHA loans', 'VA loans']
   },
 
-  // FHA Loans
   fha: {
     patterns: ['fha', 'fha loan', 'what is fha', 'federal housing'],
-    response: "FHA loans are government-backed mortgages perfect for first-time buyers!\n\n✓ Down payment as low as 3.5%\n✓ Credit scores from 580 accepted\n✓ Flexible debt-to-income ratios\n✓ Gift funds allowed for down payment\n\nThe trade-off is mortgage insurance for the life of the loan.",
-    quickReplies: ['FHA vs Conventional', 'What is PMI?', 'Talk to a specialist']
+    response: "FHA loans are government-backed mortgages perfect for first-time buyers!\n\n✓ Down payment as low as 3.5%\n✓ Credit scores from 580 accepted\n✓ Flexible debt-to-income ratios\n✓ Gift funds allowed for down payment\n✓ Lower credit? We have options!\n\nFHA is great for buyers with moderate income or less-than-perfect credit.",
+    quickReplies: ['FHA vs Conventional', 'First-time buyer', 'Get pre-approved']
   },
 
-  // VA Loans
   va: {
-    patterns: ['va loan', 'va ', 'veteran', 'military', 'service member'],
-    response: "Thank you for your service! VA loans offer incredible benefits:\n\n✓ NO down payment required\n✓ NO PMI (huge savings!)\n✓ Competitive interest rates\n✓ Limited closing costs\n\nEligible: Active duty, veterans, National Guard, and surviving spouses.",
+    patterns: ['va loan', 'va ', 'veteran', 'military', 'service member', 'surviving spouse'],
+    response: "Thank you for your service! 🎖️ VA loans offer incredible benefits:\n\n✓ NO down payment required\n✓ NO PMI ever!\n✓ Competitive interest rates\n✓ Limited closing costs\n✓ Flexible credit guidelines\n\nEligible: Active duty, veterans, National Guard, reserves, and surviving spouses.",
     quickReplies: ['Check VA eligibility', 'Down payment options', 'Get pre-approved']
   },
 
-  // PMI
-  pmi: {
-    patterns: ['pmi', 'private mortgage insurance', 'mortgage insurance', 'insurance required'],
-    response: "PMI (Private Mortgage Insurance) protects the lender if you default.\n\n• Required when down payment < 20%\n• Costs 0.5% - 1% of loan annually\n• Drops off at 20% equity (conventional)\n• VA loans have NO PMI!\n\nIt's not forever—just until you build equity.",
-    quickReplies: ['How to avoid PMI', 'VA loan benefits', 'Down payment options']
-  },
-
-  // Self-Employed
-  self_employed: {
-    patterns: ['self employed', 'self-employed', 'own business', 'business owner', '1099', 'freelance', 'contractor', 'entrepreneur'],
-    response: "Self-employed? You can absolutely get a mortgage!\n\nWhat you'll need:\n• 2 years of tax returns\n• Year-to-date P&L statement\n• Business bank statements\n• CPA letter or business license\n\nWe also offer bank statement loans if tax returns don't show your full income.",
-    quickReplies: ['Bank statement loans', 'Required documents', 'Talk to a specialist']
-  },
-
-  // Pre-Approval
-  pre_approval: {
-    patterns: ['pre-approval', 'preapproval', 'pre approved', 'preapproved', 'get approved', 'qualify'],
-    response: "Getting pre-approved is a smart first step!\n\nBenefits:\n✓ Know your exact budget\n✓ Sellers take you seriously\n✓ Faster closing process\n✓ Lock in your rate\n\nTypically takes 24-48 hours. You'll need ID, income docs, and bank statements.",
-    quickReplies: ['Start pre-approval', 'Required documents', 'Check my eligibility']
-  },
-
-  // Interest Rates
-  rates: {
-    patterns: ['rate', 'rates', 'interest rate', 'apr', 'what rate', 'today\'s rate', 'current rate'],
-    response: "Mortgage rates change daily based on the market.\n\nFactors affecting YOUR rate:\n• Credit score (higher = better)\n• Down payment amount\n• Loan type & term\n• Property type\n• Debt-to-income ratio\n\nThe best way to know your rate is to get pre-approved!",
-    quickReplies: ['Get my rate', 'Improve my credit', 'Get pre-approved']
-  },
-
-  // Credit Score
-  credit: {
-    patterns: ['credit', 'credit score', 'fico', 'credit check', 'bad credit', 'low credit'],
-    response: "Credit score requirements by loan type:\n\n• Conventional: 620+ (best rates at 740+)\n• FHA: 580+ (or 500 with 10% down)\n• VA: No minimum, but 620+ preferred\n• USDA: 640+\n\nLower score? We have options! Let's talk.",
-    quickReplies: ['FHA loans', 'Check my eligibility', 'Talk to a specialist']
-  },
-
-  // Closing Costs
-  closing_costs: {
-    patterns: ['closing cost', 'closing costs', 'fees', 'how much to close'],
-    response: "Closing costs typically run 2-5% of the loan amount.\n\nCommon costs:\n• Loan origination (0.5-1%)\n• Appraisal ($400-$600)\n• Title insurance\n• Prepaid taxes & insurance\n\nSeller credits and lender credits can help reduce these!",
-    quickReplies: ['Negotiate closing costs', 'Get an estimate', 'Talk to a specialist']
-  },
-
-  // Refinance
-  refinance: {
-    patterns: ['refinance', 'refi', 'refinancing', 'lower payment', 'cash out', 'cash-out'],
-    response: "Refinancing can save you money or unlock equity!\n\nReasons to refi:\n• Lower your interest rate\n• Reduce monthly payment\n• Switch ARM to fixed\n• Cash out home equity\n• Remove PMI\n\nRule of thumb: Refinance if you can drop your rate by 0.5%+",
-    quickReplies: ['Cash-out options', 'Check refi rates', 'Talk to a specialist']
-  },
-
-  // First-Time Buyer
-  first_time: {
-    patterns: ['first time', 'first-time', 'first home', 'never bought', 'new buyer'],
-    response: "Congratulations on buying your first home! 🏠\n\nFirst-time buyer perks:\n• FHA loans with 3.5% down\n• Down payment assistance programs\n• Tax credits in some states\n• Lower PMI rates\n\nYou may qualify even if you owned a home 3+ years ago!",
-    quickReplies: ['FHA loans', 'Down payment help', 'Get pre-approved']
-  },
-
-  // Conventional
-  conventional: {
-    patterns: ['conventional', 'conforming', 'traditional loan', 'regular mortgage'],
-    response: "Conventional loans are traditional mortgages not backed by the government.\n\nPros:\n• Lower fees than FHA over time\n• PMI drops off at 20% equity\n• Higher loan limits available\n• More property types eligible\n\nRequires: 620+ credit, 3-5% down, stable income",
-    quickReplies: ['FHA vs Conventional', 'Down payment options', 'Get pre-approved']
-  },
-
-  // Jumbo
   jumbo: {
-    patterns: ['jumbo', 'jumbo loan', 'high balance', 'over limit'],
-    response: "Jumbo loans are for amounts exceeding conforming limits ($766,550 in most areas for 2024).\n\nRequirements:\n• Higher credit score (700+)\n• Larger down payment (10-20%)\n• More reserves required\n• Lower debt-to-income ratio\n\nWe have competitive jumbo rates!",
+    patterns: ['jumbo', 'jumbo loan', 'high balance', 'over limit', 'large loan', 'expensive home'],
+    response: "Need financing for a high-value property? Our Jumbo loans are exceptional!\n\n✓ Finance up to 90% of property value\n✓ As little as 10% down\n✓ NO PMI required!\n✓ Competitive rates\n✓ Loan amounts above $766,550\n\nPerfect for luxury homes and high-cost areas.",
     quickReplies: ['Check jumbo rates', 'Down payment options', 'Talk to a specialist']
   },
 
-  // USDA
   usda: {
-    patterns: ['usda', 'rural', 'rural development'],
-    response: "USDA loans offer 0% down for eligible rural and suburban areas!\n\n✓ No down payment\n✓ Lower mortgage insurance\n✓ Competitive rates\n✓ Income limits apply\n\nMany areas just outside cities qualify. Let's check your address!",
+    patterns: ['usda', 'rural', 'rural development', 'rural area'],
+    response: "USDA loans offer 0% down for eligible rural and suburban areas!\n\n✓ No down payment required\n✓ Lower mortgage insurance than FHA\n✓ Competitive rates\n✓ Income limits apply\n\nMany areas just outside cities qualify — you might be surprised! Let's check your address.",
     quickReplies: ['Check my eligibility', 'Down payment options', 'Talk to a specialist']
   },
 
-  // Documents
-  documents: {
-    patterns: ['document', 'documents', 'paperwork', 'what do i need', 'need to provide'],
-    response: "Here's what you'll typically need:\n\n📄 Income: Pay stubs (30 days), W-2s (2 years)\n📄 Assets: Bank statements (2 months)\n📄 ID: Driver's license, SSN\n📄 Tax returns (if self-employed)\n📄 Gift letter (if using gift funds)\n\nWe'll guide you through everything!",
-    quickReplies: ['Self-employed docs', 'Start pre-approval', 'Talk to a specialist']
+  conventional: {
+    patterns: ['conventional', 'conforming', 'traditional loan', 'regular mortgage'],
+    response: "Conventional loans are traditional mortgages with great flexibility:\n\n✓ Down payments from 3-5%\n✓ PMI drops off at 20% equity\n✓ Multiple property types eligible\n✓ Primary, second home, or investment\n✓ Higher loan limits available\n\nRequires: 620+ credit, stable income, manageable debt.",
+    quickReplies: ['FHA vs Conventional', 'Down payment options', 'Get pre-approved']
   },
 
-  // Bank Statement Loans
+  // ==================== SPECIALTY PRODUCTS ====================
+  non_qm: {
+    patterns: ['non-qm', 'non qm', 'nonqm', 'alternative', 'non-traditional', 'alternative income'],
+    response: "Non-QM loans are perfect for borrowers who don't fit traditional guidelines!\n\n✓ Self-employed borrowers\n✓ Bank statement income verification\n✓ Asset-based qualification\n✓ Recent credit events OK\n✓ Foreign nationals\n✓ Investment property investors\n\nWe're a Top Non-QM Lender — we specialize in finding solutions!",
+    quickReplies: ['Bank statement loans', 'Self-employed options', 'Talk to a specialist']
+  },
+
   bank_statement: {
-    patterns: ['bank statement', 'bank statements', 'no tax return', 'stated income'],
-    response: "Bank statement loans are great for self-employed borrowers!\n\nHow it works:\n• Use 12-24 months of bank deposits\n• No tax returns required\n• Calculate income from deposits\n• Higher rates, but more qualifying income\n\nPerfect if your tax returns don't reflect your true earnings.",
-    quickReplies: ['Self-employed options', 'Required documents', 'Talk to a specialist']
+    patterns: ['bank statement', 'bank statements', 'no tax return', 'stated income', '12 month', '24 month'],
+    response: "Bank Statement Loans are ideal for self-employed borrowers!\n\nHow it works:\n• Use 12-24 months of bank deposits\n• No tax returns required\n• Personal OR business accounts\n• Calculate income from deposits\n• Flexible DTI guidelines\n• Up to 40-year terms available!\n\nPerfect if tax write-offs reduce your qualifying income.",
+    quickReplies: ['Self-employed options', 'Non-QM loans', 'Talk to a specialist']
   },
 
-  // Investment Property
-  investment: {
-    patterns: ['investment', 'rental', 'rental property', 'investment property', 'second home', 'vacation home'],
-    response: "Looking to invest in real estate? Great choice!\n\nInvestment property loans:\n• 15-25% down payment typical\n• Slightly higher rates\n• Rental income can help qualify\n• Can use for 1-4 unit properties\n\nSecond homes have different (easier) requirements!",
-    quickReplies: ['Investment rates', 'Second home vs rental', 'Talk to a specialist']
+  self_employed: {
+    patterns: ['self employed', 'self-employed', 'own business', 'business owner', '1099', 'freelance', 'contractor', 'entrepreneur', 'gig'],
+    response: "Self-employed? We specialize in helping business owners! 💼\n\nOptions available:\n• Traditional: 2 years tax returns\n• Bank Statement: 12-24 months deposits\n• Asset Depletion: Use savings to qualify\n• P&L Only programs\n\nYour tax write-offs shouldn't prevent homeownership. Let's find the right fit!",
+    quickReplies: ['Bank statement loans', 'Non-QM loans', 'Talk to a specialist']
   },
 
-  // ARM
+  bridge_loan: {
+    patterns: ['bridge', 'bridge loan', 'buy before sell', 'contingency', 'need to sell'],
+    response: "Need to buy before you sell? Our Bridge Loans help!\n\n✓ Access equity in your current home\n✓ Use for down payment on new home\n✓ Cover closing costs\n✓ No contingency needed\n✓ Competitive terms\n\nDon't miss your dream home because your current one hasn't sold yet!",
+    quickReplies: ['Home Sale Assured', 'Talk to a specialist', 'How it works']
+  },
+
+  home_sale_assured: {
+    patterns: ['home sale assured', 'guaranteed', 'backup contract', 'sell my home', 'gbc'],
+    response: "Home Sale Assured is our unique program! 🏡\n\n✓ Guaranteed Backup Contract (GBC)\n✓ Your home stays under contract\n✓ Still accept higher offers\n✓ Eliminates selling stress\n✓ Confidence to buy your next home\n\nBuy with confidence knowing your home WILL sell!",
+    quickReplies: ['Bridge loans', 'Talk to a specialist', 'Get pre-approved']
+  },
+
+  reverse_mortgage: {
+    patterns: ['reverse', 'reverse mortgage', 'hecm', 'senior', '62', 'retirement', 'equity access'],
+    response: "Reverse Mortgages (HECM) for homeowners 62+:\n\n✓ Access home equity tax-free\n✓ No monthly mortgage payments\n✓ Stay in your home\n✓ FHA-insured protection\n✓ Multiple disbursement options\n\nUse funds for retirement, healthcare, home improvements, or anything you need!",
+    quickReplies: ['How it works', 'Eligibility', 'Talk to a specialist']
+  },
+
   arm: {
-    patterns: ['arm', 'adjustable', 'adjustable rate', '5/1', '7/1', '10/1'],
-    response: "Adjustable Rate Mortgages (ARMs) start with a lower fixed rate:\n\n• 5/1 ARM: Fixed 5 years, then adjusts yearly\n• 7/1 ARM: Fixed 7 years\n• 10/1 ARM: Fixed 10 years\n\nBest for: Short-term ownership or expecting income increases. Rates have caps to limit increases.",
+    patterns: ['arm', 'adjustable', 'adjustable rate', '5/1', '7/1', '10/1', 'variable'],
+    response: "Adjustable Rate Mortgages start with lower rates:\n\n• 3/1 ARM: Fixed 3 years, then adjusts\n• 5/1 ARM: Fixed 5 years\n• 7/1 ARM: Fixed 7 years\n• 10/1 ARM: Fixed 10 years\n\nBest for: Short-term ownership, relocating soon, or expecting income increases. Rate caps protect you from major jumps!",
     quickReplies: ['ARM vs Fixed', 'Current rates', 'Talk to a specialist']
   },
 
-  // Debt-to-Income
-  dti: {
-    patterns: ['dti', 'debt to income', 'debt-to-income', 'how much can i afford', 'afford'],
-    response: "Debt-to-Income (DTI) is key to how much you can borrow!\n\nGuidelines:\n• Front-end DTI: Housing costs ≤ 28-31%\n• Back-end DTI: All debts ≤ 43-50%\n\nLower DTI = easier approval & better rates. Paying off debt before applying helps!",
-    quickReplies: ['Calculate my DTI', 'Improve my chances', 'Get pre-approved']
+  non_warrantable_condo: {
+    patterns: ['condo', 'non-warrantable', 'warrantable', 'hoa', 'condo financing'],
+    response: "Non-Warrantable Condo Financing available!\n\nWe can help when others can't:\n✓ High investor concentration\n✓ Single-entity ownership issues\n✓ Pending litigation\n✓ Commercial space concerns\n✓ New construction\n\nDon't let condo restrictions stop your purchase!",
+    quickReplies: ['Talk to a specialist', 'Down payment options', 'Get pre-approved']
   },
 
-  // Timeline
+  // ==================== ASSISTANCE PROGRAMS ====================
+  ny_assistance: {
+    patterns: ['new york program', 'ny program', 'new york assistance', 'sonyma', 'new york help'],
+    response: "New York Mortgage Assistance Programs available!\n\n• SONYMA programs\n• Down payment assistance\n• First-time buyer grants\n• Low-interest options\n• Income-based programs\n\nWe know NY programs inside and out. Let us find the right fit for you!",
+    quickReplies: ['First-time buyer', 'Down payment help', 'Talk to a specialist']
+  },
+
+  first_time: {
+    patterns: ['first time', 'first-time', 'first home', 'never bought', 'new buyer'],
+    response: "Congratulations on buying your first home! 🏠\n\nFirst-time buyer perks:\n• FHA loans with 3.5% down\n• Down payment assistance programs\n• State-specific grants (like NY SONYMA)\n• Gift funds allowed\n• Lower PMI rates\n\nYou may qualify even if you owned 3+ years ago!",
+    quickReplies: ['FHA loans', 'Down payment help', 'NY programs']
+  },
+
+  // ==================== PROCESS & GENERAL ====================
+  pre_approval: {
+    patterns: ['pre-approval', 'preapproval', 'pre approved', 'preapproved', 'get approved', 'qualify', 'how much can i'],
+    response: "Getting pre-approved is your smart first step!\n\nBenefits:\n✓ Know your exact budget\n✓ Sellers take you seriously\n✓ Faster closing process\n✓ Lock in your rate\n\nTypically 24-48 hours. We'll guide you through every document needed!",
+    quickReplies: ['Start pre-approval', 'Documents needed', 'Talk to a specialist']
+  },
+
+  rates: {
+    patterns: ['rate', 'rates', 'interest rate', 'apr', 'what rate', 'today\'s rate', 'current rate'],
+    response: "Mortgage rates change daily based on the market.\n\nFactors affecting YOUR rate:\n• Credit score (higher = better)\n• Down payment amount\n• Loan type & term\n• Property type\n• Occupancy type\n\nThe best way to know your rate is to get pre-approved. It's free!",
+    quickReplies: ['Get my rate', 'Improve my credit', 'Get pre-approved']
+  },
+
+  credit: {
+    patterns: ['credit', 'credit score', 'fico', 'credit check', 'bad credit', 'low credit'],
+    response: "Credit score requirements by loan type:\n\n• Conventional: 620+ (best rates at 740+)\n• FHA: 580+ (or 500 with 10% down)\n• VA: No minimum, but 620+ preferred\n• USDA: 640+\n• Non-QM: Options for lower scores!\n\nLower score? We specialize in finding solutions!",
+    quickReplies: ['Non-QM loans', 'FHA loans', 'Talk to a specialist']
+  },
+
+  pmi: {
+    patterns: ['pmi', 'private mortgage insurance', 'mortgage insurance', 'insurance required'],
+    response: "PMI (Private Mortgage Insurance) protects the lender if you default.\n\n• Required when down payment < 20%\n• Costs 0.5% - 1% of loan annually\n• Drops off at 20% equity (conventional)\n• VA loans = NO PMI!\n• Our Jumbo loans = NO PMI with 10% down!\n\nWe have multiple ways to avoid PMI!",
+    quickReplies: ['VA loans', 'Jumbo loans', 'Down payment options']
+  },
+
+  refinance: {
+    patterns: ['refinance', 'refi', 'refinancing', 'lower payment', 'cash out', 'cash-out'],
+    response: "Refinancing can save money or unlock equity!\n\nReasons to refi:\n• Lower your interest rate\n• Reduce monthly payment\n• Switch ARM to fixed\n• Cash out home equity\n• Remove PMI\n• Consolidate debt\n\nRule of thumb: Refi if you can drop 0.5%+ on your rate!",
+    quickReplies: ['Cash-out options', 'Check refi rates', 'Talk to a specialist']
+  },
+
+  closing_costs: {
+    patterns: ['closing cost', 'closing costs', 'fees', 'how much to close'],
+    response: "Closing costs typically run 2-5% of the loan amount.\n\nCommon costs:\n• Loan origination (0.5-1%)\n• Appraisal ($400-$600)\n• Title insurance\n• Prepaid taxes & insurance\n\nGood news: We offer appraisal waiver options on eligible loans!",
+    quickReplies: ['Appraisal waiver', 'Get an estimate', 'Talk to a specialist']
+  },
+
+  appraisal: {
+    patterns: ['appraisal', 'home value', 'appraised', 'worth', 'appraisal waiver'],
+    response: "Appraisals determine your home's fair market value.\n\n✓ Licensed appraiser visits property\n✓ Compares to recent similar sales\n✓ Costs $400-$600 typically\n\n🌟 We offer Appraisal Waiver options where the appraised value has zero effect on your mortgage terms — ask us about it!",
+    quickReplies: ['Appraisal waiver info', 'Closing costs', 'Talk to a specialist']
+  },
+
+  documents: {
+    patterns: ['document', 'documents', 'paperwork', 'what do i need', 'need to provide'],
+    response: "Here's what you'll typically need:\n\n📄 Income: Pay stubs (30 days), W-2s (2 years)\n📄 Assets: Bank statements (2 months)\n📄 ID: Driver's license, SSN\n📄 Tax returns (if self-employed)\n📄 Gift letter (if using gift funds)\n\nSelf-employed? We have flexible documentation options!",
+    quickReplies: ['Self-employed docs', 'Bank statement loans', 'Talk to a specialist']
+  },
+
   timeline: {
     patterns: ['how long', 'timeline', 'time to close', 'closing time', 'process take'],
-    response: "Typical mortgage timeline:\n\n📅 Pre-approval: 1-3 days\n📅 Home search: Varies\n📅 Under contract to close: 30-45 days\n\nWe can often close faster! Cash-out refis take 30-45 days. Rate locks typically last 30-60 days.",
+    response: "Typical mortgage timeline:\n\n📅 Pre-approval: 1-3 days\n📅 Home search: Varies\n📅 Under contract to close: 30-45 days\n\nWith 25+ years experience, we often close faster! Rate locks typically last 30-60 days.",
     quickReplies: ['Start pre-approval', 'What to expect', 'Talk to a specialist']
   },
 
-  // Gift Funds
+  investment: {
+    patterns: ['investment', 'rental', 'rental property', 'investment property', 'second home', 'vacation home', 'income property'],
+    response: "Looking to invest in real estate? Great choice!\n\nInvestment property loans:\n• 15-25% down payment typical\n• Rental income can help qualify\n• 1-4 unit properties\n• DSCR loans available\n\nSecond/vacation homes have easier requirements!",
+    quickReplies: ['Investment rates', 'Non-QM options', 'Talk to a specialist']
+  },
+
+  dti: {
+    patterns: ['dti', 'debt to income', 'debt-to-income', 'afford'],
+    response: "Debt-to-Income (DTI) is key to how much you can borrow!\n\nGuidelines:\n• Front-end DTI: Housing costs ≤ 28-31%\n• Back-end DTI: All debts ≤ 43-50%\n• Non-QM: Higher DTI options available!\n\nLower DTI = easier approval & better rates.",
+    quickReplies: ['Non-QM loans', 'Improve my chances', 'Get pre-approved']
+  },
+
   gift: {
     patterns: ['gift', 'gift funds', 'gift money', 'family help', 'parents help'],
-    response: "Yes, gift funds can be used for down payment!\n\nRequirements:\n• Gift letter signed by donor\n• Donor bank statements\n• Must be a gift, not a loan\n• Donor must be family (usually)\n\nFHA, VA, and Conventional all allow gifts. Some programs allow 100% gift funds!",
+    response: "Yes, gift funds can be used for down payment!\n\nRequirements:\n• Gift letter signed by donor\n• Donor bank statements\n• Must be a gift, not a loan\n• Typically from family\n\nFHA, VA, and Conventional all allow gifts. Some programs allow 100% gift funds!",
     quickReplies: ['FHA loans', 'Down payment options', 'Talk to a specialist']
   },
 
-  // Escrow
-  escrow: {
-    patterns: ['escrow', 'impound', 'taxes and insurance'],
-    response: "Escrow accounts collect monthly funds for:\n\n• Property taxes\n• Homeowner's insurance\n• Mortgage insurance (if applicable)\n\nYour lender pays these bills when due. Required for most loans with < 20% down. Makes budgeting easier!",
-    quickReplies: ['Closing costs', 'What to expect', 'Talk to a specialist']
-  },
-
-  // Appraisal
-  appraisal: {
-    patterns: ['appraisal', 'home value', 'appraised', 'worth'],
-    response: "Appraisals determine your home's fair market value.\n\nWhat happens:\n• Licensed appraiser visits property\n• Compares to recent similar sales\n• Costs $400-$600 typically\n• Required for most loans\n\nIf appraisal is low, we can renegotiate or explore options!",
-    quickReplies: ['What if low appraisal?', 'Closing costs', 'Talk to a specialist']
+  apply: {
+    patterns: ['apply', 'application', 'start application', 'begin', 'get started', 'ready to'],
+    response: "Ready to get started? Awesome! 🎉\n\nYou can:\n1️⃣ Apply online at legacymortgagedivision.com/apply\n2️⃣ Talk to a loan officer now\n3️⃣ Get pre-approved first\n\nOur average team member has 10+ years experience — you're in great hands!",
+    quickReplies: ['Talk to a specialist', 'Get pre-approved', 'What documents needed']
   }
 };
 
@@ -210,11 +248,11 @@ const KNOWLEDGE_BASE = {
 const LEAD_TRIGGERS = [
   'talk to', 'specialist', 'advisor', 'contact', 'call me', 'get started',
   'start pre-approval', 'check my eligibility', 'get my rate', 'get pre-approved',
-  'speak to', 'human', 'person', 'agent', 'loan officer'
+  'speak to', 'human', 'person', 'agent', 'loan officer', 'apply now'
 ];
 
 // Default quick replies
-const DEFAULT_QUICK_REPLIES = ['Down payment options', 'FHA loans', 'VA loans', 'Get pre-approved'];
+const DEFAULT_QUICK_REPLIES = ['Loan options', 'Self-employed?', 'First-time buyer', 'Get pre-approved'];
 
 function findMatch(text) {
   const lower = text.toLowerCase();
@@ -256,7 +294,7 @@ export default function MortgageChatbot() {
       dispatch({
         type: 'ADD_BOT_MESSAGE',
         payload: {
-          content: "Hey there! 👋 I'm Luna, your Luminate mortgage assistant. I can help with loan options, rates, and getting you pre-approved. What would you like to know?",
+          content: "Hey there! 👋 I'm your Legacy Mortgage assistant. With 25+ years of experience and Top 25 Lender status, we make home financing easy.\n\nHow can I help you today?",
           quickReplies: DEFAULT_QUICK_REPLIES
         }
       });
@@ -283,7 +321,7 @@ export default function MortgageChatbot() {
 
     switch (step) {
       case 0:
-        response = "I'd love to connect you with one of our mortgage specialists! They can give you personalized advice and current rates.\n\nWhat's your name?";
+        response = "I'd love to connect you with one of our mortgage specialists! Our team averages 10+ years of experience.\n\nWhat's your name?";
         nextStep = 1;
         break;
       case 1:
@@ -298,7 +336,7 @@ export default function MortgageChatbot() {
         break;
       case 3:
         newData.email = input;
-        response = `Perfect, ${newData.name}! ✅\n\nOne of our mortgage specialists will reach out within 24 hours at:\n📞 ${newData.phone}\n📧 ${newData.email}\n\nIn the meantime, is there anything else I can help you with?`;
+        response = `Perfect, ${newData.name}! ✅\n\nOne of our experienced loan officers will reach out within 24 hours at:\n📞 ${newData.phone}\n📧 ${newData.email}\n\nIn the meantime, is there anything else I can help you with?`;
         quickReplies = DEFAULT_QUICK_REPLIES;
         stayActive = false;
         console.log('Lead captured:', newData);
@@ -354,8 +392,8 @@ export default function MortgageChatbot() {
       addBotMessage(match.data.response, match.data.quickReplies);
     } else {
       addBotMessage(
-        "I can help with lots of mortgage topics!\n\nTry asking about:\n• Down payments & loan types\n• FHA, VA, Conventional, Jumbo\n• Credit scores & pre-approval\n• Self-employed mortgages\n• Refinancing options\n\nOr I can connect you with a specialist!",
-        ['Down payment options', 'Loan types', 'I\'m self-employed', 'Talk to a specialist']
+        "I can help with lots of mortgage topics!\n\n• Loan types: FHA, VA, Conventional, Jumbo\n• Self-employed & Non-QM loans\n• First-time buyer programs\n• Refinancing & cash-out\n• Bridge loans & more!\n\nOr I can connect you with a specialist!",
+        ['Loan options', 'Self-employed?', 'First-time buyer', 'Talk to a specialist']
       );
     }
   };
@@ -373,7 +411,7 @@ export default function MortgageChatbot() {
       dispatch({
         type: 'ADD_BOT_MESSAGE',
         payload: {
-          content: "Hey there! 👋 I'm Luna, your Luminate mortgage assistant. How can I help you today?",
+          content: "Hey there! 👋 I'm your Legacy Mortgage assistant. How can I help you today?",
           quickReplies: DEFAULT_QUICK_REPLIES
         }
       });
@@ -398,8 +436,8 @@ export default function MortgageChatbot() {
               <Home className="w-5 h-5 text-[#0D1834]" />
             </div>
             <div>
-              <h3 className="text-white font-semibold">Luminate Bank</h3>
-              <p className="text-xs text-[#96DAF8]">Mortgage Assistant v{VERSION}</p>
+              <h3 className="text-white font-semibold">Legacy Mortgage</h3>
+              <p className="text-xs text-[#96DAF8]">A Luminate Bank Division</p>
             </div>
           </div>
           <button
@@ -488,7 +526,7 @@ export default function MortgageChatbot() {
         {/* Footer */}
         <div className="px-4 py-2 bg-gray-100 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            Luminate Home Loans Inc. · NMLS #1281698 · Equal Housing Lender
+            Legacy Mortgage Division · Luminate Bank · NMLS #1281698
           </p>
         </div>
       </div>
