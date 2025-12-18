@@ -294,7 +294,12 @@
   var CONFIG = {
     loName: 'Legacy Mortgage',      // Loan officer or company name
     loId: 'default',                 // Loan officer ID for tracking
-    siteId: window.location.hostname // Auto-detected site
+    siteId: window.location.hostname, // Auto-detected site
+
+    // ============ AUTO-OPEN SETTINGS ============
+    autoOpen: true,                  // Set to true to auto-open on page load
+    autoOpenDelay: 2000,             // Delay in milliseconds (2000 = 2 seconds)
+    autoOpenOnce: true               // Only auto-open once per session (uses sessionStorage)
   };
 
   // ============ KNOWLEDGE BASE ============
@@ -506,6 +511,30 @@
   inputField.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') sendMessage();
   });
+
+  // ============ AUTO-OPEN ON PAGE LOAD ============
+  if (CONFIG.autoOpen) {
+    var shouldOpen = true;
+
+    // Check if we should only open once per session
+    if (CONFIG.autoOpenOnce) {
+      var hasOpened = sessionStorage.getItem('lm_chat_opened');
+      if (hasOpened) {
+        shouldOpen = false;
+      }
+    }
+
+    if (shouldOpen) {
+      setTimeout(function() {
+        if (!isOpen) {
+          toggleChat();
+          if (CONFIG.autoOpenOnce) {
+            sessionStorage.setItem('lm_chat_opened', 'true');
+          }
+        }
+      }, CONFIG.autoOpenDelay);
+    }
+  }
 
   console.log('Legacy Mortgage Widget loaded', CONFIG);
 })();
