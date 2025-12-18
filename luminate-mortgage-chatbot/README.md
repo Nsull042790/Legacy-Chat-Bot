@@ -2,12 +2,16 @@
 
 A React-based mortgage chatbot widget for Luminate Bank, designed for GitHub Pages deployment and embedding in Duda websites.
 
-**Version: 1.0.4**
+**Version: 1.0.8**
 
 ## Changelog
 
 | Version | Changes |
 |---------|---------|
+| v1.0.8 | Improved conversation handling - typo tolerance, negation detection (e.g., "I don't have 20% down" → shows low down payment options), smart alternatives |
+| v1.0.7 | Smart pattern matching - scoring-based algorithm, word boundary detection, multi-keyword boost |
+| v1.0.6 | Bug fixes - fixed "about" matching, restored version display |
+| v1.0.5 | Legacy Mortgage Division branding & company content |
 | v1.0.4 | Production release - removed debug elements, expanded knowledge base (40+ topics), added lead capture flow, fixed message rendering |
 | v1.0.3 | Debug version with content diagnostics |
 | v1.0.2 | Debug version (message in state, bubble empty) |

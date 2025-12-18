@@ -1,8 +1,13 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.7
+ * Version: 1.0.8
  *
  * CHANGELOG:
+ * v1.0.8 - Improved conversation handling
+ *        - Typo tolerance for common misspellings
+ *        - Negation detection (e.g., "I don't have 20% down")
+ *        - Smart alternatives when user expresses limitations
+ *        - New low down payment response
  * v1.0.7 - Smart pattern matching
  *        - Scoring-based algorithm (longer patterns = higher priority)
  *        - Word boundary detection for accuracy
@@ -27,7 +32,129 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.7';
+const VERSION = '1.0.8';
+
+// Common typo corrections for mortgage-related terms
+const TYPO_CORRECTIONS = {
+  // Self-employed variations
+  'sel employed': 'self employed',
+  'selfemployed': 'self employed',
+  'self-employd': 'self employed',
+  'selfeployed': 'self employed',
+  'slef employed': 'self employed',
+  'sel-employed': 'self employed',
+  // Down payment variations
+  'downpayment': 'down payment',
+  'down payement': 'down payment',
+  'donw payment': 'down payment',
+  'dwon payment': 'down payment',
+  // FHA variations
+  'fah loan': 'fha loan',
+  'fah': 'fha',
+  // Pre-approval variations
+  'pre approval': 'pre-approval',
+  'proapproval': 'pre-approval',
+  'preapproved': 'pre-approved',
+  'pre aproved': 'pre-approved',
+  'preaporved': 'pre-approved',
+  // Refinance variations
+  'refinace': 'refinance',
+  'refianance': 'refinance',
+  'refinace': 'refinance',
+  'refiannce': 'refinance',
+  // Mortgage variations
+  'morgage': 'mortgage',
+  'mortage': 'mortgage',
+  'morgatge': 'mortgage',
+  'mortgae': 'mortgage',
+  // Conventional variations
+  'conventinal': 'conventional',
+  'convential': 'conventional',
+  'convenitonal': 'conventional',
+  // Other common typos
+  'intrest': 'interest',
+  'intrest rate': 'interest rate',
+  'closeing': 'closing',
+  'closign': 'closing',
+  'appraisel': 'appraisal',
+  'appraisl': 'appraisal',
+  'documets': 'documents',
+  'documants': 'documents',
+  'veteren': 'veteran',
+  'vetran': 'veteran',
+  'jumobo': 'jumbo',
+  'jumb': 'jumbo',
+  'non qm': 'non-qm',
+  'birdge': 'bridge',
+  'bridg loan': 'bridge loan'
+};
+
+// Negation patterns to detect when user expresses limitations
+const NEGATION_PATTERNS = [
+  "don't have", "dont have", "do not have",
+  "can't afford", "cant afford", "cannot afford",
+  "no ", "without ",
+  "not enough", "don't want to put", "dont want to put"
+];
+
+// Map negation + topic to alternative responses
+const NEGATION_RESPONSES = {
+  // User says they don't have 20% down
+  low_down_payment: {
+    triggers: ['20%', '20 percent', 'twenty percent', 'large down', 'big down', 'lot down', 'much down'],
+    response: "Great news! You don't need 20% down to buy a home! 🎉\n\n💰 Low & Zero Down Payment Options:\n• VA Loans: 0% down (veterans/military)\n• USDA: 0% down (rural areas)\n• FHA: Just 3.5% down\n• Conventional: As low as 3% down\n• Jumbo: 10% down with NO PMI!\n\nWe also have down payment assistance programs available!",
+    quickReplies: ['VA loans', 'FHA loans', 'Down payment help', 'Talk to a specialist']
+  },
+  // User says they don't have good credit
+  low_credit: {
+    triggers: ['good credit', 'great credit', 'perfect credit', 'high credit', '700', '750', '800'],
+    response: "No worries! We help buyers with all credit situations! 💪\n\nOptions for lower credit scores:\n• FHA: Accepts 580+ (some down to 500)\n• VA: No minimum score requirement\n• Non-QM: Flexible credit guidelines\n• Bank Statement Loans: Focus on income, not score\n\nWe're Top Non-QM lenders — finding solutions is what we do!",
+    quickReplies: ['FHA loans', 'Non-QM loans', 'Talk to a specialist']
+  },
+  // User says they can't prove income traditionally
+  alt_income: {
+    triggers: ['tax returns', 'w2', 'w-2', 'pay stubs', 'paystubs', 'prove income', 'show income'],
+    response: "We have great options for non-traditional income verification! 📄\n\nAlternatives to tax returns:\n• Bank Statement Loans (12-24 months)\n• Asset Depletion Programs\n• P&L Only Programs\n• 1099 Income Programs\n\nYour write-offs shouldn't prevent homeownership!",
+    quickReplies: ['Bank statement loans', 'Self-employed options', 'Talk to a specialist']
+  }
+};
+
+// Function to correct typos in user input
+function correctTypos(text) {
+  let corrected = text.toLowerCase();
+  for (const [typo, correction] of Object.entries(TYPO_CORRECTIONS)) {
+    // Use word boundary-aware replacement
+    const regex = new RegExp(typo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    corrected = corrected.replace(regex, correction);
+  }
+  return corrected;
+}
+
+// Function to check for negations and return alternative response
+function checkNegation(text) {
+  const lower = text.toLowerCase();
+
+  // Check if text contains a negation pattern
+  const hasNegation = NEGATION_PATTERNS.some(neg => lower.includes(neg));
+  if (!hasNegation) return null;
+
+  // Check each negation response category
+  for (const [key, config] of Object.entries(NEGATION_RESPONSES)) {
+    for (const trigger of config.triggers) {
+      if (lower.includes(trigger)) {
+        return {
+          type: 'negation',
+          data: {
+            response: config.response,
+            quickReplies: config.quickReplies
+          }
+        };
+      }
+    }
+  }
+
+  return null;
+}
 
 // Message reducer for state management
 function messageReducer(state, action) {
@@ -272,6 +399,16 @@ function findMatch(text) {
     }
   }
 
+  // Check for negation patterns BEFORE regular matching
+  // This handles cases like "I don't have 20% down"
+  const negationMatch = checkNegation(lower);
+  if (negationMatch) {
+    return negationMatch;
+  }
+
+  // Correct typos before pattern matching
+  const corrected = correctTypos(lower);
+
   // Scoring-based matching for better accuracy
   let bestMatch = null;
   let bestScore = 0;
@@ -281,13 +418,14 @@ function findMatch(text) {
     let matchedPatterns = 0;
 
     for (const pattern of data.patterns) {
-      if (lower.includes(pattern)) {
+      // Check both original and corrected text
+      if (corrected.includes(pattern) || lower.includes(pattern)) {
         matchedPatterns++;
         // Longer patterns are more specific = higher score
         score += pattern.length * 2;
         // Bonus for exact word boundaries (not partial matches)
         const regex = new RegExp(`\\b${pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        if (regex.test(lower)) {
+        if (regex.test(corrected) || regex.test(lower)) {
           score += 10;
         }
       }
@@ -423,6 +561,9 @@ export default function MortgageChatbot() {
     if (match?.type === 'lead_capture') {
       const result = handleLeadCapture(text);
       addBotMessage(result.response, result.quickReplies);
+    } else if (match?.type === 'negation') {
+      // Handle negation responses (e.g., "I don't have 20% down")
+      addBotMessage(match.data.response, match.data.quickReplies);
     } else if (match?.type === 'knowledge') {
       addBotMessage(match.data.response, match.data.quickReplies);
     } else {
