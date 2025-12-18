@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legacy Mortgage Widget Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #f5f5f5;
+    }
+    h1 { color: #0056b3; }
+    .test-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin: 20px 0;
+    }
+    .code-block {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 14px;
+      margin: 15px 0;
+    }
+    button {
+      background: #0056b3;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+    }
+    button:hover { background: #004094; }
+    .status {
+      padding: 10px 15px;
+      border-radius: 6px;
+      margin: 10px 0;
+    }
+    .status.success { background: #d4edda; color: #155724; }
+    .status.info { background: #cce5ff; color: #004085; }
+  </style>
+</head>
+<body>
+  <h1>Legacy Mortgage Chatbot - Widget Test</h1>
+
+  <div class="test-content">
+    <h2>Widget Status</h2>
+    <div class="status success" id="status">
+      ✓ Widget loaded successfully! Look for the chat button in the bottom-right corner.
+    </div>
+  </div>
+
+  <div class="test-content">
+    <h2>Test Controls</h2>
+    <button onclick="LegacyMortgageWidget.open()">Open Chat</button>
+    <button onclick="LegacyMortgageWidget.close()">Close Chat</button>
+    <button onclick="LegacyMortgageWidget.toggle()">Toggle Chat</button>
+    <button onclick="console.log(LegacyMortgageWidget.config)">Log Config</button>
+  </div>
+
+  <div class="test-content">
+    <h2>Current Configuration</h2>
+    <div id="config-display" class="code-block">Loading...</div>
+  </div>
+
+  <div class="test-content">
+    <h2>Embed Code for Duda</h2>
+    <p>Copy this code and paste it into your Duda site (Site Settings → Head HTML):</p>
+    <div class="code-block">
+&lt;script
+  src="YOUR_HOSTED_URL/widget.js"
+  data-lo-id="your-loan-officer-id"
+  data-lo-name="Your Name"
+  data-site-id="your-site-name"&gt;
+&lt;/script&gt;
+    </div>
+  </div>
+
+  <div class="test-content">
+    <h2>Lead Capture Test</h2>
+    <div class="status info">
+      When a lead is captured, it will appear here:
+    </div>
+    <div id="lead-output" class="code-block">No leads captured yet...</div>
+  </div>
+
+  <!-- Lead capture callback - catches leads from chatbot -->
+  <script>
+    window.legacyMortgageWidgetOnLead = function(lead, config) {
+      document.getElementById('lead-output').textContent = JSON.stringify(lead, null, 2);
+      console.log('LEAD CAPTURED:', lead, 'FROM:', config);
+    };
+
+    window.legacyMortgageWidgetOnOpen = function(config) {
+      console.log('Widget opened', config);
+    };
+  </script>
+
+  <!-- THE WIDGET - This is what you'll add to Duda -->
+  <script>
+    // Inline widget for testing (normally this would be an external script)
+    (function() {
+      'use strict';
+
+      var config = {
+        loId: 'test-lo-001',
+        loName: 'Test Loan Officer',
+        siteId: 'test-site',
+        position: 'bottom-right',
+        primaryColor: '#0056b3',
+        autoOpen: false
+      };
+
+      // For testing, we'll load the chatbot in an iframe from the local build
+      // In production, this would be your GitHub Pages URL
+      var WIDGET_BASE_URL = './index.html';
+
+      var styles = `
+        #legacy-mortgage-widget-container {
+          position: fixed;
+          right: 20px;
+          bottom: 20px;
+          z-index: 999999;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        #legacy-mortgage-widget-button {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: ${config.primaryColor};
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #legacy-mortgage-widget-button:hover {
+          transform: scale(1.05);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+        #legacy-mortgage-widget-button svg {
+          width: 28px;
+          height: 28px;
+          fill: white;
+        }
+        #legacy-mortgage-widget-frame-container {
+          display: none;
+          position: absolute;
+          right: 0;
+          bottom: 70px;
+          width: 380px;
+          height: 580px;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          background: white;
+        }
+        #legacy-mortgage-widget-frame-container.open {
+          display: block;
+          animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        #legacy-mortgage-widget-frame {
+          width: 100%;
+          height: 100%;
+          border: none;
+        }
+        #legacy-mortgage-widget-close {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: rgba(0, 0, 0, 0.1);
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10;
+        }
+        @media (max-width: 480px) {
+          #legacy-mortgage-widget-frame-container {
+            width: calc(100vw - 40px);
+            height: calc(100vh - 120px);
+            right: -10px;
+          }
+        }
+      `;
+
+      var styleSheet = document.createElement('style');
+      styleSheet.textContent = styles;
+      document.head.appendChild(styleSheet);
+
+      var container = document.createElement('div');
+      container.id = 'legacy-mortgage-widget-container';
+      container.innerHTML = `
+        <div id="legacy-mortgage-widget-frame-container">
+          <button id="legacy-mortgage-widget-close">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 1L13 13M1 13L13 1" stroke="#666" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <iframe
+            id="legacy-mortgage-widget-frame"
+            src="${WIDGET_BASE_URL}"
+            title="Legacy Mortgage Chat">
+          </iframe>
+        </div>
+        <button id="legacy-mortgage-widget-button" aria-label="Open chat">
+          <svg viewBox="0 0 24 24" id="widget-icon-chat">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+          </svg>
+          <svg viewBox="0 0 24 24" id="widget-icon-close" style="display:none;">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      `;
+
+      document.body.appendChild(container);
+
+      var button = document.getElementById('legacy-mortgage-widget-button');
+      var frameContainer = document.getElementById('legacy-mortgage-widget-frame-container');
+      var closeBtn = document.getElementById('legacy-mortgage-widget-close');
+      var iconChat = document.getElementById('widget-icon-chat');
+      var iconClose = document.getElementById('widget-icon-close');
+      var isOpen = false;
+
+      function toggleWidget() {
+        isOpen = !isOpen;
+        frameContainer.classList.toggle('open', isOpen);
+        iconChat.style.display = isOpen ? 'none' : 'block';
+        iconClose.style.display = isOpen ? 'block' : 'none';
+        if (isOpen && window.legacyMortgageWidgetOnOpen) {
+          window.legacyMortgageWidgetOnOpen(config);
+        }
+      }
+
+      button.addEventListener('click', toggleWidget);
+      closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (isOpen) toggleWidget();
+      });
+
+      window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'LEGACY_MORTGAGE_LEAD') {
+          if (window.legacyMortgageWidgetOnLead) {
+            window.legacyMortgageWidgetOnLead(event.data.lead, config);
+          }
+        }
+      });
+
+      window.LegacyMortgageWidget = {
+        open: function() { if (!isOpen) toggleWidget(); },
+        close: function() { if (isOpen) toggleWidget(); },
+        toggle: toggleWidget,
+        config: config
+      };
+
+      // Display config
+      setTimeout(function() {
+        document.getElementById('config-display').textContent = JSON.stringify(config, null, 2);
+      }, 100);
+
+      console.log('Legacy Mortgage Widget loaded for testing', config);
+    })();
+  </script>
+</body>
+</html>
