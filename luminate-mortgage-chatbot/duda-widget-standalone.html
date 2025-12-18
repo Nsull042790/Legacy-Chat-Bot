@@ -1,0 +1,512 @@
+<!--
+  LEGACY MORTGAGE CHATBOT - DUDA STANDALONE WIDGET
+  Version: 1.0.17
+
+  INSTRUCTIONS:
+  1. In Duda Editor, drag an "HTML" widget onto your page
+  2. Paste this entire code into the HTML widget
+  3. Customize the CONFIG section below
+  4. Save and publish
+
+  For lead capture, update the DUDA_FORM_ID with your Duda form's ID
+-->
+
+<div id="lm-chat-widget">
+  <!-- Chat Button -->
+  <button id="lm-chat-btn" aria-label="Open mortgage chat">
+    <svg id="lm-icon-chat" viewBox="0 0 24 24" width="28" height="28" fill="white">
+      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+    </svg>
+    <svg id="lm-icon-close" viewBox="0 0 24 24" width="28" height="28" fill="white" style="display:none;">
+      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+    </svg>
+  </button>
+
+  <!-- Chat Window -->
+  <div id="lm-chat-window">
+    <div id="lm-chat-header">
+      <div id="lm-chat-title">
+        <span id="lm-chat-logo">🏠</span>
+        <div>
+          <strong>Legacy Mortgage</strong>
+          <small>We typically reply instantly</small>
+        </div>
+      </div>
+      <button id="lm-chat-close">✕</button>
+    </div>
+
+    <div id="lm-chat-messages">
+      <!-- Messages appear here -->
+    </div>
+
+    <div id="lm-quick-replies">
+      <!-- Quick reply buttons appear here -->
+    </div>
+
+    <div id="lm-chat-input-area">
+      <input type="text" id="lm-chat-input" placeholder="Type your message..." />
+      <button id="lm-chat-send">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ============ CONFIGURATION - CUSTOMIZE THESE ============ */
+  :root {
+    --lm-primary: #0056b3;
+    --lm-primary-dark: #004494;
+    --lm-bg: #f8f9fa;
+    --lm-user-msg: #0056b3;
+    --lm-bot-msg: #ffffff;
+  }
+
+  /* ============ WIDGET STYLES ============ */
+  #lm-chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999999;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  #lm-chat-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--lm-primary);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  #lm-chat-btn:hover {
+    transform: scale(1.05);
+    background: var(--lm-primary-dark);
+  }
+
+  #lm-chat-window {
+    display: none;
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    width: 370px;
+    height: 520px;
+    background: var(--lm-bg);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #lm-chat-window.open {
+    display: flex;
+    animation: lm-slide-in 0.3s ease-out;
+  }
+
+  @keyframes lm-slide-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  #lm-chat-header {
+    background: var(--lm-primary);
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #lm-chat-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #lm-chat-title small {
+    display: block;
+    opacity: 0.8;
+    font-size: 12px;
+  }
+
+  #lm-chat-logo {
+    font-size: 24px;
+  }
+
+  #lm-chat-close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  #lm-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .lm-msg {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    line-height: 1.4;
+    font-size: 14px;
+  }
+
+  .lm-msg.bot {
+    background: var(--lm-bot-msg);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .lm-msg.user {
+    background: var(--lm-user-msg);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+
+  .lm-msg strong { display: block; margin-bottom: 5px; }
+
+  #lm-quick-replies {
+    padding: 0 15px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .lm-quick-btn {
+    background: white;
+    border: 1px solid var(--lm-primary);
+    color: var(--lm-primary);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .lm-quick-btn:hover {
+    background: var(--lm-primary);
+    color: white;
+  }
+
+  #lm-chat-input-area {
+    padding: 15px;
+    background: white;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  #lm-chat-input {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 24px;
+    padding: 12px 18px;
+    font-size: 14px;
+    outline: none;
+  }
+
+  #lm-chat-input:focus {
+    border-color: var(--lm-primary);
+  }
+
+  #lm-chat-send {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--lm-primary);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #lm-chat-send:hover {
+    background: var(--lm-primary-dark);
+  }
+
+  /* Lead Form Styles */
+  .lm-lead-form {
+    background: #f0f7ff;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 10px;
+  }
+
+  .lm-lead-form input {
+    width: 100%;
+    padding: 10px 12px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  .lm-lead-form button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: var(--lm-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 480px) {
+    #lm-chat-window {
+      width: calc(100vw - 40px);
+      height: calc(100vh - 100px);
+      bottom: 70px;
+      right: -10px;
+    }
+  }
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  // ============ CONFIGURATION - CUSTOMIZE THESE ============
+  var CONFIG = {
+    loName: 'Legacy Mortgage',      // Loan officer or company name
+    loId: 'default',                 // Loan officer ID for tracking
+    siteId: window.location.hostname // Auto-detected site
+  };
+
+  // ============ KNOWLEDGE BASE ============
+  var KNOWLEDGE = {
+    loan_options: {
+      patterns: ['loan options', 'loan types', 'types of loans', 'what loans', 'mortgage options'],
+      response: "We offer a full range of mortgage solutions! 🏠\n\n<strong>Government Loans:</strong>\n• FHA — 3.5% down, flexible credit\n• VA — 0% down for veterans\n• USDA — 0% down for rural areas\n\n<strong>Conventional:</strong>\n• Conforming — 3-5% down\n• Jumbo — High-value homes, 10% down\n\n<strong>Specialty:</strong>\n• Non-QM — Self-employed\n• 203K — Renovation financing\n\nWhich interests you?",
+      quickReplies: ['FHA loans', 'VA loans', 'Self-employed', 'First-time buyer']
+    },
+    fha: {
+      patterns: ['fha', 'fha loan', 'federal housing'],
+      response: "FHA loans are government-insured mortgages! 🏛️\n\n<strong>Key Benefits:</strong>\n✓ Down payments as low as 3.5%\n✓ Credit scores from 580 accepted\n✓ Flexible debt-to-income ratios\n✓ Gift funds allowed\n\nReady to see if you qualify?",
+      quickReplies: ['Get pre-qualified', 'First-time buyer', 'Talk to specialist']
+    },
+    va: {
+      patterns: ['va loan', 'va ', 'veteran', 'military'],
+      response: "Thank you for your service! 🎖️ VA loans offer incredible benefits:\n\n✓ NO down payment required\n✓ NO PMI — ever!\n✓ Competitive rates\n✓ No prepayment penalty\n\n<strong>Eligible:</strong> Active duty, veterans, reserves, some surviving spouses.\n\nWant to check your eligibility?",
+      quickReplies: ['Check eligibility', 'Get pre-qualified', 'Talk to specialist']
+    },
+    first_time: {
+      patterns: ['first time', 'first-time', 'first home', 'never bought', 'new buyer'],
+      response: "Buying your first home is exciting! 🏠\n\n<strong>First-Time Buyer Perks:</strong>\n• FHA loans with just 3.5% down\n• Down payment assistance programs\n• Gift funds allowed\n• State-specific grants\n\nReady to take the first step?",
+      quickReplies: ['Get pre-qualified', 'FHA loans', 'Down payment help']
+    },
+    self_employed: {
+      patterns: ['self employed', 'self-employed', 'own business', 'business owner', '1099', 'freelance'],
+      response: "Self-employed? We specialize in helping business owners! 💼\n\n<strong>Options:</strong>\n• Bank Statement Loans (12-24 months)\n• Asset-based qualification\n• P&L only programs\n• 1-year tax return programs\n\nYour tax write-offs shouldn't prevent homeownership!",
+      quickReplies: ['Bank statement loans', 'Get pre-qualified', 'Talk to specialist']
+    },
+    pre_approval: {
+      patterns: ['pre-approval', 'preapproval', 'pre approved', 'get approved', 'qualify', 'how much can i'],
+      response: "Getting pre-approved is your smart first step! We offer 3 levels:\n\n📋 <strong>Pre-Qualification</strong> — Quick estimate\n✅ <strong>Pre-Approval</strong> — Verified & strong\n🏆 <strong>Credit Approval</strong> — Full underwriting done!\n\n💡 All consultations are FREE.\n\nWhich works for your timeline?",
+      quickReplies: ['Get pre-qualified FREE', 'Talk to specialist']
+    },
+    refinance: {
+      patterns: ['refinance', 'refi', 'refinancing', 'lower rate', 'cash out'],
+      response: "Refinancing can save you money! 💰\n\n<strong>Good reasons to refi:</strong>\n• Lower your interest rate\n• Remove PMI (20% equity)\n• Cash out for renovations\n• Shorten loan term\n\nWant to see your options?",
+      quickReplies: ['Check my rate', 'Cash-out options', 'Talk to specialist']
+    },
+    contact: {
+      patterns: ['contact', 'call', 'phone', 'talk to', 'speak to', 'specialist', 'human'],
+      response: "I'd love to connect you with a specialist! 📞\n\nPlease share your info and we'll reach out shortly:",
+      quickReplies: [],
+      showLeadForm: true
+    },
+    default: {
+      response: "I can help with mortgage questions! Here are some topics:\n\n• Loan types (FHA, VA, Conventional)\n• First-time buyer programs\n• Self-employed options\n• Pre-approval process\n• Refinancing\n\nOr I can connect you with a specialist!",
+      quickReplies: ['Loan options', 'First-time buyer', 'Self-employed', 'Talk to specialist']
+    }
+  };
+
+  // ============ WIDGET LOGIC ============
+  var isOpen = false;
+  var messageCount = 0;
+
+  var chatBtn = document.getElementById('lm-chat-btn');
+  var chatWindow = document.getElementById('lm-chat-window');
+  var closeBtn = document.getElementById('lm-chat-close');
+  var iconChat = document.getElementById('lm-icon-chat');
+  var iconClose = document.getElementById('lm-icon-close');
+  var messagesDiv = document.getElementById('lm-chat-messages');
+  var quickRepliesDiv = document.getElementById('lm-quick-replies');
+  var inputField = document.getElementById('lm-chat-input');
+  var sendBtn = document.getElementById('lm-chat-send');
+
+  function toggleChat() {
+    isOpen = !isOpen;
+    chatWindow.classList.toggle('open', isOpen);
+    iconChat.style.display = isOpen ? 'none' : 'block';
+    iconClose.style.display = isOpen ? 'block' : 'none';
+
+    if (isOpen && messageCount === 0) {
+      showWelcome();
+    }
+  }
+
+  function showWelcome() {
+    addMessage("Hi there! 👋 I'm here to help with your mortgage questions.\n\nWhat brings you here today?", 'bot');
+    showQuickReplies(['Loan options', 'First-time buyer', 'Self-employed', 'Get pre-approved']);
+  }
+
+  function addMessage(text, type) {
+    var msg = document.createElement('div');
+    msg.className = 'lm-msg ' + type;
+    msg.innerHTML = text.replace(/\n/g, '<br>');
+    messagesDiv.appendChild(msg);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    messageCount++;
+  }
+
+  function showQuickReplies(replies) {
+    quickRepliesDiv.innerHTML = '';
+    replies.forEach(function(reply) {
+      var btn = document.createElement('button');
+      btn.className = 'lm-quick-btn';
+      btn.textContent = reply;
+      btn.onclick = function() { handleInput(reply); };
+      quickRepliesDiv.appendChild(btn);
+    });
+  }
+
+  function showLeadForm() {
+    var formHtml = '<div class="lm-lead-form">' +
+      '<input type="text" id="lm-lead-name" placeholder="Your Name" required>' +
+      '<input type="tel" id="lm-lead-phone" placeholder="Phone Number" required>' +
+      '<input type="email" id="lm-lead-email" placeholder="Email Address" required>' +
+      '<button onclick="window.lmSubmitLead()">Connect Me!</button>' +
+      '</div>';
+
+    var msg = document.createElement('div');
+    msg.className = 'lm-msg bot';
+    msg.innerHTML = formHtml;
+    messagesDiv.appendChild(msg);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    quickRepliesDiv.innerHTML = '';
+  }
+
+  window.lmSubmitLead = function() {
+    var name = document.getElementById('lm-lead-name').value;
+    var phone = document.getElementById('lm-lead-phone').value;
+    var email = document.getElementById('lm-lead-email').value;
+
+    if (!name || !phone || !email) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    var lead = {
+      name: name,
+      phone: phone,
+      email: email,
+      loId: CONFIG.loId,
+      loName: CONFIG.loName,
+      siteId: CONFIG.siteId,
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('LEAD CAPTURED:', lead);
+
+    // ============ DUDA FORM INTEGRATION ============
+    // Option 1: If you have a Duda form, trigger it:
+    // document.querySelector('[data-form-id="YOUR_DUDA_FORM_ID"]').submit();
+
+    // Option 2: Send to webhook:
+    // fetch('YOUR_WEBHOOK_URL', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(lead)
+    // });
+
+    // Option 3: Store in Duda's data collection (requires Duda API setup)
+
+    addMessage("Thanks " + name + "! 🎉\n\nA loan specialist will reach out to you shortly at " + phone + ".\n\nIn the meantime, feel free to ask any other questions!", 'bot');
+    showQuickReplies(['Loan options', 'First-time buyer', 'Self-employed']);
+  };
+
+  function findMatch(input) {
+    var lowerInput = input.toLowerCase();
+    var bestMatch = null;
+    var bestScore = 0;
+
+    for (var key in KNOWLEDGE) {
+      if (key === 'default') continue;
+      var topic = KNOWLEDGE[key];
+      if (!topic.patterns) continue;
+
+      for (var i = 0; i < topic.patterns.length; i++) {
+        if (lowerInput.includes(topic.patterns[i])) {
+          var score = topic.patterns[i].length;
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = topic;
+          }
+        }
+      }
+    }
+
+    return bestMatch || KNOWLEDGE.default;
+  }
+
+  function handleInput(text) {
+    addMessage(text, 'user');
+
+    var match = findMatch(text);
+
+    setTimeout(function() {
+      addMessage(match.response, 'bot');
+
+      if (match.showLeadForm) {
+        showLeadForm();
+      } else if (match.quickReplies && match.quickReplies.length > 0) {
+        showQuickReplies(match.quickReplies);
+      }
+    }, 500);
+  }
+
+  function sendMessage() {
+    var text = inputField.value.trim();
+    if (text) {
+      handleInput(text);
+      inputField.value = '';
+    }
+  }
+
+  // Event Listeners
+  chatBtn.addEventListener('click', toggleChat);
+  closeBtn.addEventListener('click', toggleChat);
+  sendBtn.addEventListener('click', sendMessage);
+  inputField.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  console.log('Legacy Mortgage Widget loaded', CONFIG);
+})();
+</script>
