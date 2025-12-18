@@ -1,8 +1,17 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.8
+ * Version: 1.0.9
  *
  * CHANGELOG:
+ * v1.0.9 - Blog content integration
+ *        - Added 203(k) renovation loan info
+ *        - Added Value Assurance program
+ *        - Added PA assistance (Keystone, K-FIT, PHFA)
+ *        - Added NJ programs (YOUR Home, Smart Start)
+ *        - Added PMI cancellation guide
+ *        - Added assumable mortgage info
+ *        - Added college home buying tips
+ *        - Added homeowner tax benefits
  * v1.0.8 - Improved conversation handling
  *        - Typo tolerance for common misspellings
  *        - Negation detection (e.g., "I don't have 20% down")
@@ -32,7 +41,7 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.8';
+const VERSION = '1.0.9';
 
 // Common typo corrections for mortgage-related terms
 const TYPO_CORRECTIONS = {
@@ -376,6 +385,55 @@ const KNOWLEDGE_BASE = {
     patterns: ['apply', 'application', 'start application', 'begin', 'get started', 'ready to'],
     response: "Ready to get started? Awesome! 🎉\n\nYou can:\n1️⃣ Apply online at legacymortgagedivision.com/apply\n2️⃣ Talk to a loan officer now\n3️⃣ Get pre-approved first\n\nOur average team member has 10+ years experience — you're in great hands!",
     quickReplies: ['Talk to a specialist', 'Get pre-approved', 'What documents needed']
+  },
+
+  // ==================== BLOG TOPICS ====================
+  fha_203k: {
+    patterns: ['203k', '203(k)', 'renovation loan', 'rehab loan', 'fixer upper', 'needs work', 'renovation financing'],
+    response: "FHA 203(k) loans let you finance renovations into your mortgage! 🔨\n\n✓ Roll renovation costs into your loan\n✓ Avoid credit card debt for repairs\n✓ Limited 203(k) for smaller projects\n✓ Standard 203(k) for major renovations\n✓ Can help with appraisal gaps!\n\nPerfect for homes that need TLC. Contractors agree to fixed pricing and timelines!",
+    quickReplies: ['How it works', 'FHA loans', 'Talk to a specialist']
+  },
+
+  value_assurance: {
+    patterns: ['value assurance', 'compete with cash', 'cash offer', 'waive appraisal', 'appraisal contingency', 'bidding war'],
+    response: "Our Value Assurance Program helps you compete with cash buyers! 💪\n\n✓ Guaranteed property value for underwriting\n✓ Uses Automated Valuation Model (AVM)\n✓ Bid with confidence above asking price\n✓ If appraisal comes low, we honor AVM value\n✓ Beat cash offers without extra risk!\n\nAvailable for conforming & high-balance loans on single-family homes & condos.",
+    quickReplies: ['How to qualify', 'Get pre-approved', 'Talk to a specialist']
+  },
+
+  pa_assistance: {
+    patterns: ['pennsylvania', 'pa program', 'keystone', 'phfa', 'pa assistance', 'pa down payment'],
+    response: "Pennsylvania has great assistance programs! 🏠\n\n💰 Keystone Advantage:\n• 4% or up to $6,000 assistance\n• 0% interest, 10-year repayment\n• Min 660 credit score\n\n💰 K-FIT Program:\n• 5% of purchase price\n• Forgiven over 10 years!\n• Min 660 credit score\n\n💰 PHFA $500 Grant:\n• No repayment required!\n\nThese can combine with FHA, VA, Conventional!",
+    quickReplies: ['NJ programs', 'Down payment help', 'Talk to a specialist']
+  },
+
+  nj_assistance: {
+    patterns: ['new jersey program', 'njhmfa', 'sonyma', 'your home program', 'nj assistance', 'smart start'],
+    response: "New Jersey offers fantastic homebuyer programs! 🏡\n\n💰 YOUR Home Program:\n• Below-market interest rates\n• As little as 5% down\n• No first-time buyer requirement!\n• No PMI options available\n\n💰 Smart Start DPA:\n• Up to $15,000 in select counties!\n• $10,000 in other NJ counties\n• Pairs with NJHMFA first mortgage\n\nEligible counties: Bergen, Essex, Hudson, Mercer, Middlesex, Monmouth, Morris, Ocean, Passaic, Somerset, Union!",
+    quickReplies: ['PA programs', 'First-time buyer', 'Talk to a specialist']
+  },
+
+  pmi_removal: {
+    patterns: ['remove pmi', 'cancel pmi', 'get rid of pmi', 'stop pmi', 'pmi cancellation', 'drop pmi'],
+    response: "3 ways to cancel PMI on conventional loans! 📉\n\n1️⃣ Automatic (78% LTV):\n• PMI auto-cancels at 78% loan-to-value\n• Based on original home value\n\n2️⃣ Request at 80% LTV:\n• You request cancellation\n• Based on original value\n• Must be current on payments\n\n3️⃣ Based on Current Value:\n• At 75% LTV after 2 years\n• At 80% LTV after 5 years\n• Home improvements can help!\n\n🗽 NY special rule: Based on appraised value at 75% LTV!",
+    quickReplies: ['PMI info', 'Refinance options', 'Talk to a specialist']
+  },
+
+  assumable_mortgage: {
+    patterns: ['assumable', 'assume mortgage', 'take over mortgage', 'mortgage assumption', 'assume loan'],
+    response: "Assumable mortgages let you take over a seller's loan! 🔑\n\n✓ Eligible loans: FHA, VA, USDA\n✓ Keep seller's lower interest rate\n✓ No new appraisal needed\n\n⚠️ Considerations:\n• Need cash for equity difference\n• Example: $650K home, $500K loan = $150K needed\n• Must qualify with the lender\n• VA loans: 620+ credit, 0.5% funding fee\n\nGreat in high-rate environments if you find one!",
+    quickReplies: ['FHA loans', 'VA loans', 'Talk to a specialist']
+  },
+
+  college_home: {
+    patterns: ['college', 'student', 'college town', 'dorm', 'room and board', 'university'],
+    response: "Buying a home for your college student can be smart! 🎓\n\n💡 Benefits:\n• Potential appreciation in college towns\n• Steady rental demand from students\n• Tax benefits (mortgage interest, repairs)\n• May help qualify for in-state tuition\n• Rent rooms to offset costs\n\n📊 Comparison:\n• On-campus: ~$12,000/year\n• Off-campus rent: ~$27,000/year\n• 4 years = $48,000-$108,000!\n\nTurn housing costs into an investment!",
+    quickReplies: ['Investment properties', 'Tax benefits', 'Talk to a specialist']
+  },
+
+  tax_benefits: {
+    patterns: ['tax', 'taxes', 'deduction', 'deductions', 'tax benefit', 'write off', '1098', 'tax season'],
+    response: "Homeowner tax benefits you should know! 💰\n\n📄 Form 1098 (Mortgage Interest):\n• Deduct interest up to $750K mortgage\n• Get this from your lender\n\n🏠 Property Tax Deduction:\n• Up to $10,000 combined with state taxes\n• Keep your tax bills!\n\n🔐 PMI Deduction:\n• If you put less than 20% down\n• Income limits apply\n\n🏢 Home Office (Self-Employed):\n• Form 8829 for exclusive workspace\n• Deduct portion of home expenses\n\nAlways consult your tax professional!",
+    quickReplies: ['Self-employed options', 'Documents needed', 'Talk to a specialist']
   }
 };
 
