@@ -1,6 +1,6 @@
 <!--
   LEGACY MORTGAGE CHATBOT - FULL DUDA WIDGET
-  Version: 1.0.17 (Matches React Chatbot)
+  Version: 1.0.18 (Matches React Chatbot)
 
   Copy this entire code into Duda: Site Settings → Body End
 -->
@@ -25,7 +25,7 @@
         </div>
         <div>
           <div id="lmc-title">Legacy Mortgage</div>
-          <div id="lmc-subtitle">A Luminate Bank Division · v1.0.17</div>
+          <div id="lmc-subtitle">A Luminate Bank Division · v1.0.18</div>
         </div>
       </div>
       <button id="lmc-restart-btn" title="Start over">
@@ -42,6 +42,20 @@
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
           <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
         </svg>
+      </button>
+    </div>
+    <div id="lmc-cta-bar">
+      <button class="lmc-cta-btn lmc-cta-primary" id="lmc-apply-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        Apply Now
+      </button>
+      <button class="lmc-cta-btn lmc-cta-secondary" id="lmc-speak-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57a1.02 1.02 0 00-1.02.24l-2.2 2.2a15.045 15.045 0 01-6.59-6.59l2.2-2.21a.96.96 0 00.25-1A11.36 11.36 0 018.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z"/>
+        </svg>
+        Speak with Loan Officer
       </button>
     </div>
     <div id="lmc-footer">Legacy Mortgage Division · Luminate Bank · NMLS #1281698</div>
@@ -278,6 +292,49 @@
 #lmc-send:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+#lmc-cta-bar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--lmc-bg);
+  border-top: 1px solid var(--lmc-gray-light);
+}
+
+.lmc-cta-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.lmc-cta-primary {
+  background: var(--lmc-primary);
+  color: white;
+}
+
+.lmc-cta-primary:hover {
+  background: var(--lmc-primary-light);
+}
+
+.lmc-cta-secondary {
+  background: var(--lmc-white);
+  color: var(--lmc-primary);
+  border: 2px solid var(--lmc-primary);
+}
+
+.lmc-cta-secondary:hover {
+  background: var(--lmc-primary);
+  color: white;
 }
 
 #lmc-footer {
@@ -596,11 +653,22 @@
   }
 
   var restartBtn = document.getElementById('lmc-restart-btn');
+  var applyBtn = document.getElementById('lmc-apply-btn');
+  var speakBtn = document.getElementById('lmc-speak-btn');
 
   btn.addEventListener('click', toggle);
   restartBtn.addEventListener('click', restart);
   sendBtn.addEventListener('click', send);
   input.addEventListener('keypress', function(e) { if (e.key === 'Enter') send(); });
+
+  // CTA button handlers
+  applyBtn.addEventListener('click', function() {
+    handleInput('Get pre-approved');
+  });
+
+  speakBtn.addEventListener('click', function() {
+    handleInput('Talk to a specialist');
+  });
 
   // Auto-open
   if (CONFIG.autoOpen) {
@@ -612,6 +680,6 @@
     }
   }
 
-  console.log('Legacy Mortgage Widget v1.0.17 loaded');
+  console.log('Legacy Mortgage Widget v1.0.18 loaded');
 })();
 </script>

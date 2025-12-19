@@ -1,8 +1,12 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.17
+ * Version: 1.0.18
  *
  * CHANGELOG:
+ * v1.0.18 - Persistent CTA buttons
+ *         - Added "Apply Now" and "Speak with Loan Officer" buttons
+ *         - Always visible below the input area
+ *         - Triggers pre-approval and lead capture flows
  * v1.0.17 - Down payment assistance flow
  *         - Added general down_payment_assistance topic
  *         - Asks which state before showing state-specific programs
@@ -81,9 +85,9 @@
  */
 
 import { useReducer, useState, useRef, useEffect } from 'react';
-import { Send, Home, RotateCcw } from 'lucide-react';
+import { Send, Home, RotateCcw, FileText, Phone } from 'lucide-react';
 
-const VERSION = '1.0.17';
+const VERSION = '1.0.18';
 
 // ==================== CONVERSATION MEMORY ====================
 // Follow-up phrases that indicate user wants more info on previous topic
@@ -1105,6 +1109,24 @@ export default function MortgageChatbot() {
               <Send className="w-5 h-5 text-white" />
             </button>
           </div>
+        </div>
+
+        {/* CTA Buttons */}
+        <div className="flex gap-2 px-4 py-3 bg-gray-50 border-t border-gray-200">
+          <button
+            onClick={() => handleSend('Get pre-approved')}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-[#0D1834] text-white rounded-lg text-sm font-semibold hover:bg-[#1a2d4d] transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            Apply Now
+          </button>
+          <button
+            onClick={() => handleSend('Talk to a specialist')}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-white text-[#0D1834] border-2 border-[#0D1834] rounded-lg text-sm font-semibold hover:bg-[#0D1834] hover:text-white transition-colors"
+          >
+            <Phone className="w-4 h-4" />
+            Speak with Loan Officer
+          </button>
         </div>
 
         {/* Footer */}
