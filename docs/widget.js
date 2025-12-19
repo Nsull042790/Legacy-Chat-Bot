@@ -329,7 +329,7 @@
             </div>
             <div>
               <div id="lmc-title">Legacy Mortgage</div>
-              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.21</div>
+              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.22</div>
             </div>
           </div>
           <button id="lmc-restart-btn" title="Start over">
@@ -568,8 +568,40 @@
 
     // Format conversation for readability
     var conversationText = conversationHistory.map(function(msg) {
-      return msg.role + ': ' + msg.message;
-    }).join('\n\n');
+      var role = msg.role === 'bot' ? 'BOT' : 'USER';
+      return role + ': ' + msg.message;
+    }).join('\n\n---\n\n');
+
+    // Create formatted email body
+    var submittedDate = new Date();
+    var formattedDate = submittedDate.toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      hour: 'numeric', minute: '2-digit', hour12: true
+    });
+
+    var emailBody = [
+      '═══════════════════════════════════════',
+      '         NEW MORTGAGE LEAD',
+      '═══════════════════════════════════════',
+      '',
+      'CONTACT INFORMATION',
+      '───────────────────────────────────────',
+      'Name:    ' + name,
+      'Phone:   ' + phone,
+      'Email:   ' + email,
+      '',
+      'SOURCE DETAILS',
+      '───────────────────────────────────────',
+      'Page:    ' + window.location.href,
+      'Date:    ' + formattedDate,
+      '',
+      'CONVERSATION HISTORY',
+      '───────────────────────────────────────',
+      '',
+      conversationText,
+      '',
+      '═══════════════════════════════════════'
+    ].join('\n');
 
     var lead = {
       name: name,
@@ -578,9 +610,9 @@
       loId: CONFIG.loId,
       siteId: CONFIG.siteId,
       pageUrl: window.location.href,
-      timestamp: new Date().toISOString(),
+      timestamp: submittedDate.toISOString(),
       conversation: conversationText,
-      conversationJson: JSON.stringify(conversationHistory)
+      emailBody: emailBody
     };
 
     console.log('LEAD CAPTURED:', lead);
@@ -597,6 +629,7 @@
       formData.append('pageUrl', lead.pageUrl);
       formData.append('timestamp', lead.timestamp);
       formData.append('conversation', lead.conversation);
+      formData.append('emailBody', lead.emailBody);
 
       fetch(CONFIG.webhookUrl, {
         method: 'POST',
@@ -709,5 +742,5 @@
     }
   }
 
-  console.log('Legacy Mortgage Widget v1.0.21 loaded from CDN');
+  console.log('Legacy Mortgage Widget v1.0.22 loaded from CDN');
 })();
