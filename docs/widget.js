@@ -329,7 +329,7 @@
             </div>
             <div>
               <div id="lmc-title">Legacy Mortgage</div>
-              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.22</div>
+              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.23</div>
             </div>
           </div>
           <button id="lmc-restart-btn" title="Start over">
@@ -566,10 +566,23 @@
 
     leadCaptureActive = false;
 
+    // Helper to strip HTML tags and clean up text
+    function stripHtml(html) {
+      return html
+        .replace(/<strong>/g, '')
+        .replace(/<\/strong>/g, '')
+        .replace(/<br\s*\/?>/g, '\n')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&nbsp;/g, ' ');
+    }
+
     // Format conversation for readability
     var conversationText = conversationHistory.map(function(msg) {
       var role = msg.role === 'bot' ? 'BOT' : 'USER';
-      return role + ': ' + msg.message;
+      return role + ': ' + stripHtml(msg.message);
     }).join('\n\n---\n\n');
 
     // Create formatted email body
@@ -742,5 +755,5 @@
     }
   }
 
-  console.log('Legacy Mortgage Widget v1.0.22 loaded from CDN');
+  console.log('Legacy Mortgage Widget v1.0.23 loaded from CDN');
 })();
