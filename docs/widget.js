@@ -329,7 +329,7 @@
             </div>
             <div>
               <div id="lmc-title">Legacy Mortgage</div>
-              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.23</div>
+              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.24</div>
             </div>
           </div>
           <button id="lmc-restart-btn" title="Start over">
@@ -655,6 +655,9 @@
       });
     }
 
+    // Clear conversation history after lead submission
+    conversationHistory = [];
+
     addMsg("Thanks " + name + "! 🎉\n\nA loan specialist will reach out shortly at " + phone + ".\n\nFeel free to ask any other questions!", 'bot');
     showQR(['Loan options', 'First-time buyer', 'Self-employed']);
   };
@@ -755,5 +758,5 @@
     }
   }
 
-  console.log('Legacy Mortgage Widget v1.0.23 loaded from CDN');
+  console.log('Legacy Mortgage Widget v1.0.24 loaded from CDN');
 })();
