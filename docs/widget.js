@@ -329,7 +329,7 @@
             </div>
             <div>
               <div id="lmc-title">Legacy Mortgage</div>
-              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.24</div>
+              <div id="lmc-subtitle">A Luminate Bank Division · v1.2.0</div>
             </div>
           </div>
           <button id="lmc-restart-btn" title="Start over">
@@ -758,5 +758,5 @@
     }
   }
 
-  console.log('Legacy Mortgage Widget v1.0.24 loaded from CDN');
+  console.log('Legacy Mortgage Widget v1.2.0 loaded from CDN');
 })();
