@@ -329,7 +329,7 @@
             </div>
             <div>
               <div id="lmc-title">Legacy Mortgage</div>
-              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.20</div>
+              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.21</div>
             </div>
           </div>
           <button id="lmc-restart-btn" title="Start over">
@@ -587,10 +587,21 @@
 
     // Send to Zapier webhook if configured
     if (CONFIG.webhookUrl) {
+      // Use form-urlencoded to avoid CORS preflight issues with Zapier
+      var formData = new URLSearchParams();
+      formData.append('name', lead.name);
+      formData.append('phone', lead.phone);
+      formData.append('email', lead.email);
+      formData.append('loId', lead.loId || '');
+      formData.append('siteId', lead.siteId || '');
+      formData.append('pageUrl', lead.pageUrl);
+      formData.append('timestamp', lead.timestamp);
+      formData.append('conversation', lead.conversation);
+
       fetch(CONFIG.webhookUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(lead)
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
       }).then(function(response) {
         console.log('Lead sent to webhook:', response.status);
       }).catch(function(error) {
@@ -698,5 +709,5 @@
     }
   }
 
-  console.log('Legacy Mortgage Widget v1.0.20 loaded from CDN');
+  console.log('Legacy Mortgage Widget v1.0.21 loaded from CDN');
 })();
