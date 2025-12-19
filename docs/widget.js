@@ -1,6 +1,6 @@
 /**
  * Legacy Mortgage Chatbot Widget
- * Version: 1.0.19
+ * Version: 1.0.20
  *
  * Usage: <script src="https://[your-github-username].github.io/Legacy-Chat-Bot/widget.js"></script>
  *
@@ -8,7 +8,8 @@
  * window.LMCConfig = {
  *   autoOpen: true,
  *   autoOpenDelay: 2000,
- *   autoOpenOnce: true
+ *   autoOpenOnce: true,
+ *   webhookUrl: 'https://hooks.zapier.com/hooks/catch/YOUR_ID/YOUR_HOOK/'
  * };
  */
 (function() {
@@ -21,7 +22,8 @@
     siteId: window.location.hostname,
     autoOpen: true,
     autoOpenDelay: 2000,
-    autoOpenOnce: true
+    autoOpenOnce: true,
+    webhookUrl: null // Zapier webhook URL for lead capture
   };
 
   var CONFIG = Object.assign({}, defaultConfig, window.LMCConfig || {});
@@ -327,7 +329,7 @@
             </div>
             <div>
               <div id="lmc-title">Legacy Mortgage</div>
-              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.19</div>
+              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.20</div>
             </div>
           </div>
           <button id="lmc-restart-btn" title="Start over">
@@ -463,6 +465,7 @@
   // ============ WIDGET LOGIC ============
   var isOpen = false;
   var messageCount = 0;
+  var conversationHistory = []; // Track full conversation
 
   var btn = document.getElementById('lmc-btn');
   var win = document.getElementById('lmc-window');
@@ -505,6 +508,13 @@
     messagesDiv.appendChild(msg);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
     messageCount++;
+
+    // Store in conversation history
+    conversationHistory.push({
+      role: type === 'user' ? 'User' : 'Bot',
+      message: text,
+      timestamp: new Date().toISOString()
+    });
   }
 
   function showQR(replies) {
@@ -555,8 +565,39 @@
     }
 
     leadCaptureActive = false;
-    var lead = { name: name, phone: phone, email: email, loId: CONFIG.loId, siteId: CONFIG.siteId, timestamp: new Date().toISOString() };
+
+    // Format conversation for readability
+    var conversationText = conversationHistory.map(function(msg) {
+      return msg.role + ': ' + msg.message;
+    }).join('\n\n');
+
+    var lead = {
+      name: name,
+      phone: phone,
+      email: email,
+      loId: CONFIG.loId,
+      siteId: CONFIG.siteId,
+      pageUrl: window.location.href,
+      timestamp: new Date().toISOString(),
+      conversation: conversationText,
+      conversationJson: JSON.stringify(conversationHistory)
+    };
+
     console.log('LEAD CAPTURED:', lead);
+
+    // Send to Zapier webhook if configured
+    if (CONFIG.webhookUrl) {
+      fetch(CONFIG.webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lead)
+      }).then(function(response) {
+        console.log('Lead sent to webhook:', response.status);
+      }).catch(function(error) {
+        console.error('Webhook error:', error);
+      });
+    }
+
     addMsg("Thanks " + name + "! 🎉\n\nA loan specialist will reach out shortly at " + phone + ".\n\nFeel free to ask any other questions!", 'bot');
     showQR(['Loan options', 'First-time buyer', 'Self-employed']);
   };
@@ -657,5 +698,5 @@
     }
   }
 
-  console.log('Legacy Mortgage Widget v1.0.19 loaded from CDN');
+  console.log('Legacy Mortgage Widget v1.0.20 loaded from CDN');
 })();
