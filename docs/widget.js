@@ -1,6 +1,6 @@
 /**
  * Legacy Mortgage Chatbot Widget
- * Version: 1.0.18
+ * Version: 1.0.19
  *
  * Usage: <script src="https://[your-github-username].github.io/Legacy-Chat-Bot/widget.js"></script>
  *
@@ -327,7 +327,7 @@
             </div>
             <div>
               <div id="lmc-title">Legacy Mortgage</div>
-              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.18</div>
+              <div id="lmc-subtitle">A Luminate Bank Division · v1.0.19</div>
             </div>
           </div>
           <button id="lmc-restart-btn" title="Start over">
@@ -519,7 +519,8 @@
   }
 
   function showLeadForm() {
-    var html = '<div class="lmc-lead-form"><input type="text" id="lmc-name" placeholder="Your Name"><input type="tel" id="lmc-phone" placeholder="Phone Number"><input type="email" id="lmc-email" placeholder="Email Address"><button onclick="window.lmcSubmitLead()">Connect Me!</button></div>';
+    leadCaptureActive = true;
+    var html = '<div class="lmc-lead-form"><input type="text" id="lmc-name" placeholder="Full Name (First & Last)"><input type="tel" id="lmc-phone" placeholder="Phone Number (10 digits)"><input type="email" id="lmc-email" placeholder="Email Address"><button onclick="window.lmcSubmitLead()">Connect Me!</button></div>';
     var msg = document.createElement('div');
     msg.className = 'lmc-msg bot';
     msg.innerHTML = html;
@@ -529,13 +530,34 @@
   }
 
   window.lmcSubmitLead = function() {
-    var name = document.getElementById('lmc-name').value;
-    var phone = document.getElementById('lmc-phone').value;
-    var email = document.getElementById('lmc-email').value;
-    if (!name || !phone || !email) { alert('Please fill in all fields'); return; }
+    var name = document.getElementById('lmc-name').value.trim();
+    var phone = document.getElementById('lmc-phone').value.trim();
+    var email = document.getElementById('lmc-email').value.trim();
+
+    // Validate full name (first and last)
+    var nameParts = name.split(/\s+/);
+    if (nameParts.length < 2 || nameParts.some(function(p) { return p.length < 1; })) {
+      alert('Please enter your full name (first and last)');
+      return;
+    }
+
+    // Validate phone (at least 10 digits)
+    var phoneDigits = phone.replace(/\D/g, '');
+    if (phoneDigits.length < 10) {
+      alert('Please enter a valid phone number (10 digits)');
+      return;
+    }
+
+    // Validate email (must contain @ and .)
+    if (!email.includes('@') || !email.includes('.')) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    leadCaptureActive = false;
     var lead = { name: name, phone: phone, email: email, loId: CONFIG.loId, siteId: CONFIG.siteId, timestamp: new Date().toISOString() };
     console.log('LEAD CAPTURED:', lead);
-    addMsg("Thanks " + name + "!\n\nA loan specialist will reach out shortly at " + phone + ".\n\nFeel free to ask any other questions!", 'bot');
+    addMsg("Thanks " + name + "! 🎉\n\nA loan specialist will reach out shortly at " + phone + ".\n\nFeel free to ask any other questions!", 'bot');
     showQR(['Loan options', 'First-time buyer', 'Self-employed']);
   };
 
@@ -612,11 +634,16 @@
   sendBtn.addEventListener('click', send);
   input.addEventListener('keypress', function(e) { if (e.key === 'Enter') send(); });
 
+  // Track lead capture state
+  var leadCaptureActive = false;
+
   applyBtn.addEventListener('click', function() {
+    if (leadCaptureActive) return; // Ignore if already in lead capture
     handleInput('Get pre-approved');
   });
 
   speakBtn.addEventListener('click', function() {
+    if (leadCaptureActive) return; // Ignore if already in lead capture
     handleInput('Talk to a specialist');
   });
 
@@ -630,5 +657,5 @@
     }
   }
 
-  console.log('Legacy Mortgage Widget v1.0.18 loaded from CDN');
+  console.log('Legacy Mortgage Widget v1.0.19 loaded from CDN');
 })();

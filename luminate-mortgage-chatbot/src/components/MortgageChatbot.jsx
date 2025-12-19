@@ -1,8 +1,14 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.18
+ * Version: 1.0.19
  *
  * CHANGELOG:
+ * v1.0.19 - Lead capture validation & bug fixes
+ *         - Added validation: full name required (first + last)
+ *         - Phone must be 10+ digits
+ *         - Email must contain @ and .
+ *         - CTA buttons disabled during lead capture flow
+ *         - Fixed bug where CTA clicks used as form data
  * v1.0.18 - Persistent CTA buttons
  *         - Added "Apply Now" and "Speak with Loan Officer" buttons
  *         - Always visible below the input area
@@ -87,7 +93,7 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw, FileText, Phone } from 'lucide-react';
 
-const VERSION = '1.0.18';
+const VERSION = '1.0.19';
 
 // ==================== CONVERSATION MEMORY ====================
 // Follow-up phrases that indicate user wants more info on previous topic
@@ -866,6 +872,22 @@ export default function MortgageChatbot() {
     if (!isTyping) inputRef.current?.focus();
   }, [isTyping]);
 
+  // Validation helpers
+  const isValidFullName = (name) => {
+    const trimmed = name.trim();
+    const parts = trimmed.split(/\s+/);
+    return parts.length >= 2 && parts.every(part => part.length >= 1);
+  };
+
+  const isValidPhone = (phone) => {
+    const digitsOnly = phone.replace(/\D/g, '');
+    return digitsOnly.length >= 10;
+  };
+
+  const isValidEmail = (email) => {
+    return email.includes('@') && email.includes('.');
+  };
+
   const handleLeadCapture = (input) => {
     const { step, data } = leadCapture;
     let newData = { ...data };
@@ -876,20 +898,35 @@ export default function MortgageChatbot() {
 
     switch (step) {
       case 0:
-        response = "I'd love to connect you with one of our mortgage specialists! Our team averages 10+ years of experience.\n\nWhat's your name?";
+        response = "I'd love to connect you with one of our mortgage specialists! Our team averages 10+ years of experience.\n\nWhat's your full name (first and last)?";
         nextStep = 1;
         break;
       case 1:
+        if (!isValidFullName(input)) {
+          response = "Please enter your full name (first and last name):";
+          nextStep = 1; // Stay on same step
+          break;
+        }
         newData.name = input;
         response = `Nice to meet you, ${input}! What's the best phone number to reach you?`;
         nextStep = 2;
         break;
       case 2:
+        if (!isValidPhone(input)) {
+          response = "Please enter a valid phone number (10 digits):";
+          nextStep = 2; // Stay on same step
+          break;
+        }
         newData.phone = input;
         response = "Great! And what's your email address?";
         nextStep = 3;
         break;
       case 3:
+        if (!isValidEmail(input)) {
+          response = "Please enter a valid email address (must include @ symbol):";
+          nextStep = 3; // Stay on same step
+          break;
+        }
         newData.email = input;
         response = `Perfect, ${newData.name}! ✅\n\nOne of our experienced loan officers will reach out within 24 hours at:\n📞 ${newData.phone}\n📧 ${newData.email}\n\nIn the meantime, is there anything else I can help you with?`;
         quickReplies = DEFAULT_QUICK_REPLIES;
@@ -1114,15 +1151,25 @@ export default function MortgageChatbot() {
         {/* CTA Buttons */}
         <div className="flex gap-2 px-4 py-3 bg-gray-50 border-t border-gray-200">
           <button
-            onClick={() => handleSend('Get pre-approved')}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-[#0D1834] text-white rounded-lg text-sm font-semibold hover:bg-[#1a2d4d] transition-colors"
+            onClick={() => !leadCapture.active && handleSend('Get pre-approved')}
+            disabled={leadCapture.active}
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+              leadCapture.active
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-[#0D1834] text-white hover:bg-[#1a2d4d]'
+            }`}
           >
             <FileText className="w-4 h-4" />
             Apply Now
           </button>
           <button
-            onClick={() => handleSend('Talk to a specialist')}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-white text-[#0D1834] border-2 border-[#0D1834] rounded-lg text-sm font-semibold hover:bg-[#0D1834] hover:text-white transition-colors"
+            onClick={() => !leadCapture.active && handleSend('Talk to a specialist')}
+            disabled={leadCapture.active}
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+              leadCapture.active
+                ? 'bg-gray-100 text-gray-400 border-2 border-gray-300 cursor-not-allowed'
+                : 'bg-white text-[#0D1834] border-2 border-[#0D1834] hover:bg-[#0D1834] hover:text-white'
+            }`}
           >
             <Phone className="w-4 h-4" />
             Speak with Loan Officer
