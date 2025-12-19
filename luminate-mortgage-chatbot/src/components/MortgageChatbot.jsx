@@ -1,8 +1,13 @@
 /**
  * Legacy Mortgage Division Chatbot (Luminate Bank)
- * Version: 1.0.16
+ * Version: 1.0.17
  *
  * CHANGELOG:
+ * v1.0.17 - Down payment assistance flow
+ *         - Added general down_payment_assistance topic
+ *         - Asks which state before showing state-specific programs
+ *         - Updated state patterns (NJ, PA, NY) to match quick replies
+ *         - Added other_state topic for users in other states
  * v1.0.16 - Loan options overview
  *         - Added loan_options topic for "Loan options" quick reply
  *         - Shows all loan types: FHA, VA, USDA, Conventional, Jumbo, Non-QM, etc.
@@ -78,7 +83,7 @@
 import { useReducer, useState, useRef, useEffect } from 'react';
 import { Send, Home, RotateCcw } from 'lucide-react';
 
-const VERSION = '1.0.16';
+const VERSION = '1.0.17';
 
 // ==================== CONVERSATION MEMORY ====================
 // Follow-up phrases that indicate user wants more info on previous topic
@@ -472,8 +477,14 @@ const KNOWLEDGE_BASE = {
 
   down_payment: {
     patterns: ['down payment', 'downpayment', 'how much down', 'money down', 'upfront'],
-    response: "Down payment requirements vary by loan type:\n\n• Conventional: 3-5% minimum\n• FHA: 3.5% with 580+ credit\n• VA: 0% for eligible veterans\n• USDA: 0% for rural areas\n• Jumbo: As low as 10% with NO PMI!\n\nWe also have down payment assistance programs available!",
-    quickReplies: ['Jumbo loans', 'FHA loans', 'VA loans']
+    response: "Down payment requirements vary by loan type:\n\n💰 **Zero Down:**\n• VA: $0 (veterans/military)\n• USDA: $0 (eligible rural areas)\n\n💰 **Low Down:**\n• FHA: 3.5%\n• Conventional: 3-5%\n• Jumbo: 10% (NO PMI!)\n\nLooking for assistance programs? We have options in multiple states!",
+    quickReplies: ['Down payment assistance', 'FHA loans', 'VA loans']
+  },
+
+  down_payment_assistance: {
+    patterns: ['down payment assistance', 'down payment help', 'assistance program', 'dpa', 'grant', 'help with down payment', 'state program', 'state programs'],
+    response: "Great news — we offer down payment assistance in multiple states! 🎁\n\n**Programs Available:**\n• **New Jersey:** Smart Start (up to $15,000!)\n• **Pennsylvania:** Keystone, K-FIT (up to $6,000)\n• **New York:** SONYMA programs\n• **Other States:** Various local programs\n\nWhich state are you buying in?",
+    quickReplies: ['New Jersey', 'Pennsylvania', 'New York', 'Other state']
   },
 
   fha: {
@@ -569,9 +580,9 @@ const KNOWLEDGE_BASE = {
 
   // ==================== ASSISTANCE PROGRAMS ====================
   ny_assistance: {
-    patterns: ['new york program', 'ny program', 'new york assistance', 'sonyma', 'new york help'],
-    response: "New York Mortgage Assistance Programs available!\n\n• SONYMA programs\n• Down payment assistance\n• First-time buyer grants\n• Low-interest options\n• Income-based programs\n\nWe know NY programs inside and out. Let us find the right fit for you!",
-    quickReplies: ['First-time buyer', 'Down payment help', 'Talk to a specialist']
+    patterns: ['new york', 'ny program', 'new york assistance', 'sonyma', 'new york help'],
+    response: "New York Mortgage Assistance Programs available! 🗽\n\n💰 **SONYMA Programs:**\n• Down payment assistance loans\n• Low-interest rate options\n• First-time buyer grants\n\n💰 **Additional Options:**\n• Income-based programs\n• NYC-specific programs\n• County assistance programs\n\nWe know NY programs inside and out. Let us find the right fit for you!",
+    quickReplies: ['Get pre-qualified', 'Talk to a specialist']
   },
 
   first_time: {
@@ -673,15 +684,21 @@ const KNOWLEDGE_BASE = {
   },
 
   pa_assistance: {
-    patterns: ['pennsylvania', 'pa program', 'keystone', 'phfa', 'pa assistance', 'pa down payment'],
-    response: "Pennsylvania has great assistance programs! 🏠\n\n💰 Keystone Advantage:\n• 4% or up to $6,000 assistance\n• 0% interest, 10-year repayment\n• Min 660 credit score\n\n💰 K-FIT Program:\n• 5% of purchase price\n• Forgiven over 10 years!\n• Min 660 credit score\n\n💰 PHFA $500 Grant:\n• No repayment required!\n\nThese can combine with FHA, VA, Conventional!",
-    quickReplies: ['NJ programs', 'Down payment help', 'Talk to a specialist']
+    patterns: ['pennsylvania', 'pa program', 'keystone', 'phfa', 'pa assistance', 'k-fit'],
+    response: "Pennsylvania has great assistance programs! 🏠\n\n💰 **Keystone Advantage:**\n• 4% or up to $6,000 assistance\n• 0% interest, 10-year repayment\n• Min 660 credit score\n\n💰 **K-FIT Program:**\n• 5% of purchase price\n• **Forgiven over 10 years!**\n• Min 660 credit score\n\n💰 **PHFA $500 Grant:**\n• No repayment required!\n\nThese can combine with FHA, VA, Conventional!",
+    quickReplies: ['Get pre-qualified', 'Talk to a specialist']
   },
 
   nj_assistance: {
-    patterns: ['new jersey program', 'njhmfa', 'sonyma', 'your home program', 'nj assistance', 'smart start'],
-    response: "New Jersey offers fantastic homebuyer programs! 🏡\n\n💰 YOUR Home Program:\n• Below-market interest rates\n• As little as 5% down\n• No first-time buyer requirement!\n• No PMI options available\n\n💰 Smart Start DPA:\n• Up to $15,000 in select counties!\n• $10,000 in other NJ counties\n• Pairs with NJHMFA first mortgage\n\nEligible counties: Bergen, Essex, Hudson, Mercer, Middlesex, Monmouth, Morris, Ocean, Passaic, Somerset, Union!",
-    quickReplies: ['PA programs', 'First-time buyer', 'Talk to a specialist']
+    patterns: ['new jersey', 'nj program', 'njhmfa', 'your home program', 'nj assistance', 'smart start'],
+    response: "New Jersey offers fantastic homebuyer programs! 🏡\n\n💰 **Smart Start DPA:**\n• Up to **$15,000** in select counties!\n• $10,000 in other NJ counties\n• Pairs with NJHMFA first mortgage\n\n💰 **YOUR Home Program:**\n• Below-market interest rates\n• As little as 5% down\n• No first-time buyer requirement!\n\n**Eligible Counties for $15K:**\nBergen, Essex, Hudson, Mercer, Middlesex, Monmouth, Morris, Ocean, Passaic, Somerset, Union!\n\nWant to see if you qualify?",
+    quickReplies: ['Get pre-qualified', 'Talk to a specialist']
+  },
+
+  other_state: {
+    patterns: ['other state', 'different state', 'not listed', 'another state'],
+    response: "We're licensed in all 50 states and can help find programs in your area! 🇺🇸\n\nMany states and counties offer:\n• Down payment assistance\n• First-time buyer grants\n• Low-interest programs\n• Employer assistance programs\n\nTell us where you're buying and we'll research available programs for you!",
+    quickReplies: ['Talk to a specialist', 'Get pre-qualified']
   },
 
   pmi_removal: {
