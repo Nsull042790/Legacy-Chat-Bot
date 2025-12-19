@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legacy Mortgage Chatbot - Topics & Triggers Reference</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      line-height: 1.5;
+      color: #1a1a1a;
+    }
+    h1 {
+      color: #0D1834;
+      border-bottom: 3px solid #96DAF8;
+      padding-bottom: 10px;
+      margin-bottom: 5px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    h2 {
+      color: #0D1834;
+      margin-top: 30px;
+      border-left: 4px solid #96DAF8;
+      padding-left: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+    th {
+      background: #0D1834;
+      color: white;
+      text-align: left;
+      padding: 12px;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e0e0e0;
+      vertical-align: top;
+    }
+    tr:nth-child(even) { background: #f8fafc; }
+    tr:hover { background: #eff6ff; }
+    .topic-name {
+      font-weight: 600;
+      color: #0D1834;
+      white-space: nowrap;
+    }
+    .triggers {
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 12px;
+      color: #555;
+    }
+    .trigger {
+      display: inline-block;
+      background: #e8f4fd;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin: 2px;
+    }
+    .category {
+      background: #96DAF8;
+      color: #0D1834;
+      font-weight: 600;
+    }
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      color: #666;
+      font-size: 12px;
+      text-align: center;
+    }
+    @media print {
+      body { padding: 20px; }
+      tr:hover { background: inherit; }
+      .trigger { border: 1px solid #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Legacy Mortgage Chatbot</h1>
+  <p class="subtitle">Topics & Triggers Reference Guide | Version 1.3.0</p>
+
+  <h2>Loan Types</h2>
+  <table>
+    <tr><th style="width: 25%">Topic</th><th>Trigger Phrases</th></tr>
+    <tr>
+      <td class="topic-name">Loan Options Overview</td>
+      <td class="triggers"><span class="trigger">loan options</span><span class="trigger">loan types</span><span class="trigger">types of loans</span><span class="trigger">what loans</span><span class="trigger">mortgage options</span><span class="trigger">what kind</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">FHA Loans</td>
+      <td class="triggers"><span class="trigger">fha</span><span class="trigger">fha loan</span><span class="trigger">federal housing</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">VA Loans</td>
+      <td class="triggers"><span class="trigger">va loan</span><span class="trigger">va</span><span class="trigger">veteran</span><span class="trigger">military</span><span class="trigger">service member</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">USDA Loans</td>
+      <td class="triggers"><span class="trigger">usda</span><span class="trigger">rural</span><span class="trigger">rural area</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Conventional Loans</td>
+      <td class="triggers"><span class="trigger">conventional</span><span class="trigger">conforming</span><span class="trigger">traditional loan</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Jumbo Loans</td>
+      <td class="triggers"><span class="trigger">jumbo</span><span class="trigger">jumbo loan</span><span class="trigger">high balance</span><span class="trigger">large loan</span><span class="trigger">expensive home</span><span class="trigger">luxury</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">FHA 203K Renovation</td>
+      <td class="triggers"><span class="trigger">203k</span><span class="trigger">203(k)</span><span class="trigger">renovation loan</span><span class="trigger">rehab loan</span><span class="trigger">fixer upper</span><span class="trigger">fixer-upper</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Reverse Mortgage</td>
+      <td class="triggers"><span class="trigger">reverse</span><span class="trigger">reverse mortgage</span><span class="trigger">hecm</span><span class="trigger">senior</span><span class="trigger">62</span><span class="trigger">retirement</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Refinance</td>
+      <td class="triggers"><span class="trigger">refinance</span><span class="trigger">refi</span><span class="trigger">refinancing</span><span class="trigger">lower rate</span><span class="trigger">cash out</span></td>
+    </tr>
+  </table>
+
+  <h2>Self-Employed & Non-Traditional</h2>
+  <table>
+    <tr><th style="width: 25%">Topic</th><th>Trigger Phrases</th></tr>
+    <tr>
+      <td class="topic-name">Self-Employed</td>
+      <td class="triggers"><span class="trigger">self employed</span><span class="trigger">self-employed</span><span class="trigger">own business</span><span class="trigger">business owner</span><span class="trigger">1099</span><span class="trigger">freelance</span><span class="trigger">contractor</span><span class="trigger">entrepreneur</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Bank Statement Loans</td>
+      <td class="triggers"><span class="trigger">bank statement</span><span class="trigger">bank statements</span><span class="trigger">no tax return</span><span class="trigger">12 month</span><span class="trigger">24 month</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Non-QM Loans</td>
+      <td class="triggers"><span class="trigger">non-qm</span><span class="trigger">non qm</span><span class="trigger">nonqm</span><span class="trigger">alternative</span><span class="trigger">non-traditional</span></td>
+    </tr>
+  </table>
+
+  <h2>Down Payment & Assistance Programs</h2>
+  <table>
+    <tr><th style="width: 25%">Topic</th><th>Trigger Phrases</th></tr>
+    <tr>
+      <td class="topic-name">Down Payment Info</td>
+      <td class="triggers"><span class="trigger">down payment</span><span class="trigger">downpayment</span><span class="trigger">how much down</span><span class="trigger">money down</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">DPA Programs (General)</td>
+      <td class="triggers"><span class="trigger">down payment assistance</span><span class="trigger">down payment help</span><span class="trigger">assistance program</span><span class="trigger">dpa</span><span class="trigger">grant</span><span class="trigger">help with down payment</span><span class="trigger">state program</span><span class="trigger">state programs</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">New Jersey Programs</td>
+      <td class="triggers"><span class="trigger">new jersey</span><span class="trigger">nj program</span><span class="trigger">njhmfa</span><span class="trigger">smart start</span><span class="trigger">nj assistance</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Pennsylvania Programs</td>
+      <td class="triggers"><span class="trigger">pennsylvania</span><span class="trigger">pa program</span><span class="trigger">keystone</span><span class="trigger">phfa</span><span class="trigger">pa assistance</span><span class="trigger">k-fit</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">New York Programs</td>
+      <td class="triggers"><span class="trigger">new york</span><span class="trigger">ny program</span><span class="trigger">sonyma</span><span class="trigger">ny assistance</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Other States</td>
+      <td class="triggers"><span class="trigger">other state</span><span class="trigger">different state</span><span class="trigger">not listed</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Gift Funds</td>
+      <td class="triggers"><span class="trigger">gift fund</span><span class="trigger">gift funds</span><span class="trigger">gift money</span><span class="trigger">family gift</span><span class="trigger">gift for down payment</span></td>
+    </tr>
+  </table>
+
+  <h2>Credit & Financial</h2>
+  <table>
+    <tr><th style="width: 25%">Topic</th><th>Trigger Phrases</th></tr>
+    <tr>
+      <td class="topic-name">Credit Score</td>
+      <td class="triggers"><span class="trigger">credit</span><span class="trigger">credit score</span><span class="trigger">fico</span><span class="trigger">bad credit</span><span class="trigger">low credit</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Student Loans</td>
+      <td class="triggers"><span class="trigger">student loan</span><span class="trigger">student loans</span><span class="trigger">student debt</span><span class="trigger">college debt</span><span class="trigger">college loan</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Debt-to-Income (DTI)</td>
+      <td class="triggers"><span class="trigger">dti</span><span class="trigger">debt to income</span><span class="trigger">debt-to-income</span><span class="trigger">debt ratio</span><span class="trigger">income ratio</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">PMI</td>
+      <td class="triggers"><span class="trigger">pmi</span><span class="trigger">private mortgage insurance</span><span class="trigger">mortgage insurance</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">PMI Removal</td>
+      <td class="triggers"><span class="trigger">remove pmi</span><span class="trigger">cancel pmi</span><span class="trigger">get rid of pmi</span><span class="trigger">stop pmi</span><span class="trigger">pmi cancellation</span><span class="trigger">drop pmi</span><span class="trigger">cancel my pmi</span><span class="trigger">remove my pmi</span><span class="trigger">stop paying pmi</span><span class="trigger">eliminate pmi</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Interest Rates</td>
+      <td class="triggers"><span class="trigger">rate</span><span class="trigger">rates</span><span class="trigger">interest rate</span><span class="trigger">apr</span><span class="trigger">today's rate</span><span class="trigger">current rate</span></td>
+    </tr>
+  </table>
+
+  <h2>Process & Getting Started</h2>
+  <table>
+    <tr><th style="width: 25%">Topic</th><th>Trigger Phrases</th></tr>
+    <tr>
+      <td class="topic-name">First-Time Buyer</td>
+      <td class="triggers"><span class="trigger">first time</span><span class="trigger">first-time</span><span class="trigger">first home</span><span class="trigger">never bought</span><span class="trigger">new buyer</span><span class="trigger">first house</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Pre-Approval</td>
+      <td class="triggers"><span class="trigger">pre-approval</span><span class="trigger">preapproval</span><span class="trigger">pre approved</span><span class="trigger">preapproved</span><span class="trigger">get approved</span><span class="trigger">qualify</span><span class="trigger">how much can i</span><span class="trigger">pre-qualified</span><span class="trigger">prequalified</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Required Documents</td>
+      <td class="triggers"><span class="trigger">document</span><span class="trigger">documents</span><span class="trigger">paperwork</span><span class="trigger">what do i need</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Timeline</td>
+      <td class="triggers"><span class="trigger">how long</span><span class="trigger">timeline</span><span class="trigger">time to close</span><span class="trigger">closing time</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Value Assurance Program</td>
+      <td class="triggers"><span class="trigger">value assurance</span><span class="trigger">cash buyer</span><span class="trigger">cash buyers</span><span class="trigger">compete with cash</span><span class="trigger">appraisal contingency</span><span class="trigger">waive appraisal</span><span class="trigger">beat cash</span><span class="trigger">cash offer</span></td>
+    </tr>
+    <tr>
+      <td class="topic-name">Contact Specialist</td>
+      <td class="triggers"><span class="trigger">contact</span><span class="trigger">phone</span><span class="trigger">email</span><span class="trigger">call</span><span class="trigger">reach</span><span class="trigger">speak</span><span class="trigger">talk to</span><span class="trigger">specialist</span><span class="trigger">human</span><span class="trigger">person</span></td>
+    </tr>
+  </table>
+
+  <div class="footer">
+    <p><strong>Legacy Mortgage Division</strong> | A Luminate Bank Division</p>
+    <p>Generated: December 2024 | Version 1.3.0 | 31 Topics</p>
+  </div>
+</body>
+</html>
