@@ -747,8 +747,7 @@
   var leadCaptureActive = false;
 
   applyBtn.addEventListener('click', function() {
-    if (leadCaptureActive) return; // Ignore if already in lead capture
-    handleInput('Get pre-approved');
+    window.open('https://www.legacymortgagedivision.com/', '_blank');
   });
 
   speakBtn.addEventListener('click', function() {
